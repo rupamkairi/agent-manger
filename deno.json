@@ -1,10 +1,8 @@
 {
-  "name": "ai-resource-manager",
-  "version": "0.0.1",
   "tasks": {
     "vite:dev": "vite",
     "dev": "deno task dev:desktop",
-    "dev:desktop": "deno desktop --hmr .",
+    "dev:desktop": "vite build && deno desktop --hmr .",
     "build": "vite build",
     "build:desktop": "vite build && deno desktop --output ./dist/AIResourceManager.app .",
     "fmt": "deno fmt",

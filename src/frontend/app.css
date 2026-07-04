@@ -1,40 +1,176 @@
 @import "tailwindcss";
 
-@theme {
-  --color-background: oklch(1 0 0);
-  --color-foreground: oklch(0.145 0 0);
-  --color-card: oklch(1 0 0);
-  --color-card-foreground: oklch(0.145 0 0);
-  --color-popover: oklch(1 0 0);
-  --color-popover-foreground: oklch(0.145 0 0);
-  --color-primary: oklch(0.205 0 0);
-  --color-primary-foreground: oklch(0.985 0 0);
-  --color-secondary: oklch(0.97 0 0);
-  --color-secondary-foreground: oklch(0.205 0 0);
-  --color-muted: oklch(0.97 0 0);
-  --color-muted-foreground: oklch(0.556 0 0);
-  --color-accent: oklch(0.97 0 0);
-  --color-accent-foreground: oklch(0.205 0 0);
-  --color-destructive: oklch(0.577 0.245 27.325);
-  --color-destructive-foreground: oklch(0.985 0 0);
-  --color-border: oklch(0.922 0 0);
-  --color-input: oklch(0.922 0 0);
-  --color-ring: oklch(0.708 0 0);
-  --radius: 0.5rem;
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
-  --color-chart-1: oklch(0.646 0.222 41.116);
-  --color-chart-2: oklch(0.6 0.118 184.714);
-  --color-chart-3: oklch(0.398 0.07 227.392);
-  --color-chart-4: oklch(0.828 0.189 84.429);
-  --color-chart-5: oklch(0.769 0.188 70.08);
+@font-face {
+  font-family: "Geist";
+  src: url("/fonts/Geist-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+
+  --color-background: #10131a;
+  --color-foreground: #e1e2ec;
+  --color-card: #10131a;
+  --color-card-foreground: #e1e2ec;
+  --color-popover: #1d2027;
+  --color-popover-foreground: #e1e2ec;
+  --color-primary: #adc6ff;
+  --color-primary-foreground: #002e6a;
+  --color-secondary: #4edea3;
+  --color-secondary-foreground: #003824;
+  --color-muted: #191b23;
+  --color-muted-foreground: #c2c6d6;
+  --color-accent: #272a31;
+  --color-accent-foreground: #e1e2ec;
+  --color-destructive: #ffb4ab;
+  --color-destructive-foreground: #690005;
+  --color-border: #424754;
+  --color-input: #32353c;
+  --color-ring: #adc6ff;
+
+  --color-surface: #10131a;
+  --color-surface-dim: #0b0e15;
+  --color-surface-low: #191b23;
+  --color-surface-container: #1d2027;
+  --color-surface-high: #272a31;
+  --color-surface-highest: #32353c;
+  --color-outline: #8c909f;
+  --color-outline-variant: #424754;
+  --color-on-surface: #e1e2ec;
+  --color-on-surface-variant: #c2c6d6;
+  --color-success: #4edea3;
+  --color-warning: #ffb786;
+  --color-danger: #ffb4ab;
+  --color-info: #adc6ff;
+  --color-terminal: #000000;
+
+  --color-chart-1: #adc6ff;
+  --color-chart-2: #4edea3;
+  --color-chart-3: #ffb786;
+  --color-chart-4: #ffb4ab;
+  --color-chart-5: #8c909f;
+
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius: 0.25rem;
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
   }
+
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
+
   body {
+    margin: 0;
+    overflow: hidden;
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgb(173 198 255 / 0.25);
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-background);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-outline-variant);
+    border-radius: 2px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-outline);
+  }
+}
+
+@layer utilities {
+  .font-data {
+    font-family: var(--font-mono);
+  }
+
+  .text-label {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .text-code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .text-path {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.05em;
   }
 }

@@ -12,16 +12,16 @@
   } = $props();
 </script>
 
-<div class="mb-6 flex items-center justify-between">
-  <div>
-    <h2 class="text-2xl font-bold">{title}</h2>
+<header class="mb-6 flex items-start justify-between gap-4">
+  <div class="min-w-0">
+    <h1 class="text-[32px] font-semibold leading-tight text-on-surface">{title}</h1>
     {#if description}
-      <p class="text-sm text-muted-foreground">{description}</p>
+      <p class="mt-1 max-w-3xl text-base text-on-surface-variant">{description}</p>
     {/if}
   </div>
   {#if children}
-    <div>
+    <div class="shrink-0">
       {@render children()}
     </div>
   {/if}
-</div>
+</header>
