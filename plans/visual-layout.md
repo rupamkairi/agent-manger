@@ -4,47 +4,11 @@
 
 Main layout:
 
-- Top Menu Bar
 - Left Sidebar
 - Main Content
 - Right Details Panel
 - Bottom Status Bar
 - Integrated Terminal Drawer
-
----
-
-# 1. Top Menu Bar
-
-## Menu Items
-
-### File
-
-- Add Project
-- Remove Project
-- Refresh Scan
-- Open App Settings
-- Quit
-
-### Resources
-
-- Import Skill
-- Install Skill
-- Create Instruction File
-- Validate Resources
-- Refresh Resources
-
-### View
-
-- Toggle Sidebar
-- Toggle Details Panel
-- Toggle Terminal
-- Toggle Theme
-
-### Help
-
-- About
-- Documentation
-- Open Logs
 
 ---
 

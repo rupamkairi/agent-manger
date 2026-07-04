@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agent Manager | Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #10131a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #424754;
+            border-radius: 2px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8c909f;
+        }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(100px, auto);
+            gap: 1px;
+            background-color: #27272a;
+            border: 1px solid #27272a;
+        }
+        .metric-card {
+            background-color: #10131a;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background-color 150ms ease;
+        }
+        .metric-card:hover {
+            background-color: #1d2027;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#10131a",
+                        "on-secondary": "#003824",
+                        "on-surface": "#e1e2ec",
+                        "tertiary-fixed-dim": "#ffb786",
+                        "primary-fixed-dim": "#adc6ff",
+                        "error": "#ffb4ab",
+                        "outline": "#8c909f",
+                        "outline-variant": "#424754",
+                        "on-tertiary-fixed-variant": "#723600",
+                        "on-primary-fixed-variant": "#004395",
+                        "surface-variant": "#32353c",
+                        "surface": "#10131a",
+                        "surface-container-highest": "#32353c",
+                        "on-background": "#e1e2ec",
+                        "on-tertiary": "#502400",
+                        "surface-bright": "#363941",
+                        "primary-container": "#4d8eff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary": "#002e6a",
+                        "on-tertiary-fixed": "#311400",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary": "#4edea3",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-high": "#272a31",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#005ac2",
+                        "on-error": "#690005",
+                        "surface-container": "#1d2027",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-primary-fixed": "#001a42",
+                        "inverse-surface": "#e1e2ec",
+                        "tertiary-fixed": "#ffdcc6",
+                        "on-secondary-container": "#00311f",
+                        "surface-tint": "#adc6ff",
+                        "inverse-on-surface": "#2e3038",
+                        "on-primary-container": "#00285d",
+                        "surface-container-low": "#191b23",
+                        "surface-dim": "#10131a",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-container": "#00a572",
+                        "surface-container-lowest": "#0b0e15",
+                        "primary": "#adc6ff",
+                        "tertiary-container": "#df7412",
+                        "on-tertiary-container": "#461f00",
+                        "tertiary": "#ffb786"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "1.5rem",
+                        "xl": "2rem",
+                        "sm": "0.5rem",
+                        "md": "1rem",
+                        "xs": "0.25rem"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "mono-code": ["JetBrains Mono"],
+                        "label-sm": ["Geist"],
+                        "mono-path": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-base": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "display-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "mono-code": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                        "mono-path": ["11px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-base text-body-base h-screen overflow-hidden flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-background text-primary border-b border-outline-variant flex justify-between items-center w-full px-md h-12 z-50">
+<div class="flex items-center gap-xl">
+<span class="text-headline-md font-headline-md font-bold text-on-background">Agent Manager</span>
+<nav class="hidden md:flex gap-md h-full items-center">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors px-sm py-1" href="#">File</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors px-sm py-1" href="#">Resources</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors px-sm py-1" href="#">View</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors px-sm py-1" href="#">Help</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-variant p-1 transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-variant p-1 transition-colors">account_circle</button>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-background border-r border-outline-variant flex flex-col h-full py-md w-[240px] shrink-0">
+<div class="px-md mb-lg">
+<h2 class="text-headline-md font-headline-md text-primary">Workspace</h2>
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-60">v1.0.4-stable</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs overflow-y-auto">
+<!-- Dashboard Active -->
+<a class="flex items-center gap-md px-md py-sm text-primary font-bold bg-surface-container-high border-r-2 border-primary transition-all duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-sm font-label-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">folder</span>
+<span class="text-label-sm font-label-sm">Projects</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">smart_toy</span>
+<span class="text-label-sm font-label-sm">Agents</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span class="text-label-sm font-label-sm">Skills</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-label-sm font-label-sm">Instructions</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">database</span>
+<span class="text-label-sm font-label-sm">Memory</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-sm font-label-sm">Health</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="text-label-sm font-label-sm">Terminal</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-label-sm font-label-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-md pt-md border-t border-outline-variant flex flex-col gap-xs">
+<a class="flex items-center gap-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="text-label-sm font-label-sm">Docs</span>
+</a>
+<a class="flex items-center gap-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="text-label-sm font-label-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col overflow-y-auto relative bg-background">
+<div class="p-lg">
+<header class="mb-lg">
+<h1 class="font-display-lg text-display-lg text-on-background">System Overview</h1>
+<p class="text-on-surface-variant opacity-70">Monitor and manage your autonomous agent network.</p>
+</header>
+<!-- Bento Metrics Grid -->
+<div class="bento-grid mb-lg">
+<!-- Projects -->
+<div class="col-span-12 md:col-span-4 metric-card">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Projects</span>
+<span class="material-symbols-outlined text-primary text-xl">folder</span>
+</div>
+<div class="mt-4">
+<span class="text-display-lg font-display-lg">12</span>
+<div class="flex items-center gap-xs mt-1">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="text-mono-path font-mono-path text-secondary">ACTIVE_SESSIONS</span>
+</div>
+</div>
+</div>
+<!-- Agents -->
+<div class="col-span-6 md:col-span-4 metric-card">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Agents</span>
+<span class="material-symbols-outlined text-primary text-xl">smart_toy</span>
+</div>
+<div class="mt-4">
+<span class="text-display-lg font-display-lg">3</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant ml-2">/ 5 Total</span>
+</div>
+</div>
+<!-- Skills -->
+<div class="col-span-6 md:col-span-4 metric-card">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Skills</span>
+<span class="material-symbols-outlined text-primary text-xl">bolt</span>
+</div>
+<div class="mt-4">
+<span class="text-display-lg font-display-lg">45</span>
+<span class="text-mono-path font-mono-path text-on-surface-variant ml-2">+2 New</span>
+</div>
+</div>
+<!-- Instructions -->
+<div class="col-span-6 md:col-span-4 metric-card">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Instructions</span>
+<span class="material-symbols-outlined text-primary text-xl">description</span>
+</div>
+<div class="mt-4">
+<span class="text-display-lg font-display-lg">28</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant block">Compiled sets</span>
+</div>
+</div>
+<!-- Warnings -->
+<div class="col-span-6 md:col-span-4 metric-card">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Warnings</span>
+<span class="material-symbols-outlined text-error text-xl">warning</span>
+</div>
+<div class="mt-4">
+<span class="text-display-lg font-display-lg text-error">2</span>
+<span class="text-mono-path font-mono-path text-error ml-2">URGENT</span>
+</div>
+</div>
+<!-- Last Scan -->
+<div class="col-span-12 md:col-span-4 metric-card">
+<div class="flex justify-between items-start">
+<span class="text-label-sm font-label-sm text-on-surface-variant">Last Scan</span>
+<span class="material-symbols-outlined text-primary text-xl">timer</span>
+</div>
+<div class="mt-4">
+<span class="text-headline-md font-headline-md">2m ago</span>
+<span class="text-mono-path font-mono-path text-secondary block">STATUS: COMPLETE</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-12 gap-lg">
+<!-- Recent Resources -->
+<div class="col-span-12 lg:col-span-8 border border-outline-variant bg-surface-container-lowest">
+<div class="p-md border-b border-outline-variant flex justify-between items-center">
+<h3 class="text-label-sm font-label-sm uppercase tracking-wider text-on-surface-variant">Recent Resources</h3>
+<button class="text-label-sm font-label-sm text-primary hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-mono-path font-mono-path text-on-surface-variant opacity-60 border-b border-outline-variant">
+<th class="px-md py-sm font-normal">RESOURCE_ID</th>
+<th class="px-md py-sm font-normal">TYPE</th>
+<th class="px-md py-sm font-normal">OWNER</th>
+<th class="px-md py-sm font-normal">STATUS</th>
+</tr>
+</thead>
+<tbody class="text-mono-code font-mono-code">
+<tr class="border-b border-outline-variant/30 hover:bg-surface-variant/20 transition-colors">
+<td class="px-md py-sm text-primary">#node_77x2</td>
+<td class="px-md py-sm">VectorStore</td>
+<td class="px-md py-sm">Lead_Agent_01</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="text-secondary">READY</span>
+</div>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/30 hover:bg-surface-variant/20 transition-colors">
+<td class="px-md py-sm text-primary">#node_33k9</td>
+<td class="px-md py-sm">LogicBranch</td>
+<td class="px-md py-sm">Analytic_Bot</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary"></div>
+<span class="text-secondary">READY</span>
+</div>
+</td>
+</tr>
+<tr class="border-b border-outline-variant/30 hover:bg-surface-variant/20 transition-colors">
+<td class="px-md py-sm text-primary">#node_01m4</td>
+<td class="px-md py-sm">ApiGateway</td>
+<td class="px-md py-sm">System_Kernel</td>
+<td class="px-md py-sm">
+<div class="flex items-center gap-xs">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>
+<span class="text-tertiary">SYNCING</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Warnings Panel -->
+<div class="col-span-12 lg:col-span-4 border border-outline-variant bg-surface-container-lowest">
+<div class="p-md border-b border-outline-variant">
+<h3 class="text-label-sm font-label-sm uppercase tracking-wider text-error">System Warnings</h3>
+</div>
+<div class="p-md flex flex-col gap-md">
+<!-- Warning Item -->
+<div class="flex gap-md group">
+<div class="shrink-0 p-1.5 h-fit bg-error-container text-on-error-container rounded">
+<span class="material-symbols-outlined text-md">priority_high</span>
+</div>
+<div class="flex-1 border-b border-outline-variant/30 pb-md">
+<div class="flex justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-background">Memory Leakage</span>
+<span class="text-mono-path font-mono-path opacity-50 text-error">14:22:01</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">High heap usage detected in Lead_Agent_01. Auto-clearance pending.</p>
+</div>
+</div>
+<!-- Warning Item -->
+<div class="flex gap-md group">
+<div class="shrink-0 p-1.5 h-fit bg-tertiary-container text-on-tertiary-container rounded">
+<span class="material-symbols-outlined text-md">wifi_off</span>
+</div>
+<div class="flex-1 pb-md">
+<div class="flex justify-between">
+<span class="text-label-sm font-label-sm font-bold text-on-background">Latency Spike</span>
+<span class="text-mono-path font-mono-path opacity-50">14:19:44</span>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Latency exceeded 450ms on External_Worker_3. Re-routing traffic.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Terminal Drawer (Integrated) -->
+<div class="mt-auto border-t border-outline-variant bg-[#000000] min-h-[160px] flex flex-col">
+<div class="flex items-center justify-between px-md py-1 border-b border-outline-variant/20 bg-surface-container-low">
+<span class="text-mono-path font-mono-path text-on-surface-variant flex items-center gap-sm">
+<span class="material-symbols-outlined text-sm">terminal</span> SYSTEM_LOGS
+                    </span>
+<div class="flex gap-md">
+<button class="material-symbols-outlined text-sm text-on-surface-variant">search</button>
+<button class="material-symbols-outlined text-sm text-on-surface-variant">close</button>
+</div>
+</div>
+<div class="p-md font-mono-code text-mono-code space-y-1 text-on-surface-variant/80">
+<div class="flex gap-md">
+<span class="text-[#4edea3]">INFO</span>
+<span class="opacity-50">[14:30:12]</span>
+<span>Heartbeat signal confirmed from 3/3 active nodes.</span>
+</div>
+<div class="flex gap-md">
+<span class="text-[#4edea3]">INFO</span>
+<span class="opacity-50">[14:30:15]</span>
+<span>Instruction set #28 successfully injected into Lead_Agent_01.</span>
+</div>
+<div class="flex gap-md">
+<span class="text-error">ERR</span>
+<span class="opacity-50">[14:31:02]</span>
+<span class="text-error">Buffer overflow on #node_77x2. Triggering circuit breaker.</span>
+</div>
+<div class="flex gap-md">
+<span class="text-tertiary">WARN</span>
+<span class="opacity-50">[14:31:05]</span>
+<span class="text-tertiary">Resource re-allocation in progress for Analytic_Bot.</span>
+</div>
+<div class="flex gap-md animate-pulse">
+<span class="text-primary">EXEC</span>
+<span class="opacity-50">[14:32:00]</span>
+<span class="text-primary">Scanning sub-networks for instruction updates...</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Right Details Panel (Technical Inspection) -->
+<aside class="hidden xl:flex flex-col w-[320px] bg-background border-l border-outline-variant shrink-0">
+<div class="p-md border-b border-outline-variant bg-surface-container-low">
+<h3 class="text-label-sm font-label-sm uppercase tracking-widest text-on-surface-variant">System Metadata</h3>
+</div>
+<div class="flex-1 p-md overflow-y-auto">
+<div class="mb-lg">
+<div class="flex justify-center mb-md">
+<div class="w-full aspect-video bg-surface-container relative rounded-lg overflow-hidden border border-outline-variant">
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#adc6ff 1px, transparent 1px); background-size: 10px 10px;"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-4xl text-primary animate-pulse">hub</span>
+</div>
+</div>
+</div>
+<h4 class="text-label-sm font-label-sm font-bold mb-xs">Active Topology</h4>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Decentralized Mesh Architecture (v2)</p>
+</div>
+<div class="space-y-md">
+<div class="flex flex-col gap-xs">
+<span class="text-mono-path font-mono-path opacity-50">NODE_VERSION</span>
+<span class="text-label-sm font-label-sm text-on-background">LTS-20.11.0</span>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="text-mono-path font-mono-path opacity-50">API_ENDPOINT</span>
+<span class="text-label-sm font-label-sm text-primary">https://core.agent-manager.io/v1</span>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="text-mono-path font-mono-path opacity-50">SYSTEM_UPTIME</span>
+<span class="text-label-sm font-label-sm text-on-background">14d 02h 11m 44s</span>
+</div>
+<div class="pt-md mt-md border-t border-outline-variant/30">
+<h4 class="text-label-sm font-label-sm font-bold mb-sm">Active Agents</h4>
+<div class="space-y-sm">
+<div class="flex items-center justify-between bg-surface-container-high p-xs px-sm rounded">
+<span class="text-label-sm font-label-sm">Lead_Agent_01</span>
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+</div>
+<div class="flex items-center justify-between bg-surface-container-high p-xs px-sm rounded">
+<span class="text-label-sm font-label-sm">Analytic_Bot</span>
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+</div>
+<div class="flex items-center justify-between bg-surface-container-high p-xs px-sm rounded">
+<span class="text-label-sm font-label-sm">System_Kernel</span>
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest text-secondary border-t border-outline-variant flex justify-between items-center px-md w-full h-8 shrink-0 z-50">
+<div class="flex items-center gap-lg">
+<span class="text-mono-path font-mono-path">Project: agent-manager | Scan: Complete</span>
+</div>
+<div class="flex items-center gap-xl">
+<span class="text-mono-path font-mono-path text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs">smart_toy</span> Agents: 3
+            </span>
+<span class="text-mono-path font-mono-path text-on-surface-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-xs text-error">warning</span> Warnings: 2
+            </span>
+<div class="h-4 w-[1px] bg-outline-variant mx-sm"></div>
+<span class="text-mono-path font-mono-path text-secondary uppercase">system_online_100%</span>
+</div>
+</footer>
+<script>
+        // Simple micro-interaction for hovering cards
+        document.querySelectorAll('.metric-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-2px)';
+                card.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

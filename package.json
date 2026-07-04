@@ -6,7 +6,8 @@
   "scripts": {
     "vite:dev": "vite",
     "dev": "deno task dev:desktop",
-    "build": "vite build",
+    "vite:build": "vite build",
+    "build": "deno task build:desktop",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },

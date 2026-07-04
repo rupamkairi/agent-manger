@@ -36,3 +36,6 @@ npm-debug.log*
 
 # Deno
 .deno_desktop_entry-*.ts
+
+# Local agent skills
+.agents/skills/

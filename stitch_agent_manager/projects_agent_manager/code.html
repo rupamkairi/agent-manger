@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agent Manager - Projects</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "background": "#10131a",
+                  "on-secondary": "#003824",
+                  "on-surface": "#e1e2ec",
+                  "tertiary-fixed-dim": "#ffb786",
+                  "primary-fixed-dim": "#adc6ff",
+                  "error": "#ffb4ab",
+                  "outline": "#8c909f",
+                  "outline-variant": "#424754",
+                  "on-tertiary-fixed-variant": "#723600",
+                  "on-primary-fixed-variant": "#004395",
+                  "surface-variant": "#32353c",
+                  "surface": "#10131a",
+                  "surface-container-highest": "#32353c",
+                  "on-background": "#e1e2ec",
+                  "on-tertiary": "#502400",
+                  "surface-bright": "#363941",
+                  "primary-container": "#4d8eff",
+                  "primary-fixed": "#d8e2ff",
+                  "on-secondary-fixed-variant": "#005236",
+                  "on-primary": "#002e6a",
+                  "on-tertiary-fixed": "#311400",
+                  "secondary-fixed-dim": "#4edea3",
+                  "secondary": "#4edea3",
+                  "on-secondary-fixed": "#002113",
+                  "surface-container-high": "#272a31",
+                  "error-container": "#93000a",
+                  "on-error-container": "#ffdad6",
+                  "inverse-primary": "#005ac2",
+                  "on-error": "#690005",
+                  "surface-container": "#1d2027",
+                  "on-surface-variant": "#c2c6d6",
+                  "on-primary-fixed": "#001a42",
+                  "inverse-surface": "#e1e2ec",
+                  "tertiary-fixed": "#ffdcc6",
+                  "on-secondary-container": "#00311f",
+                  "surface-tint": "#adc6ff",
+                  "inverse-on-surface": "#2e3038",
+                  "on-primary-container": "#00285d",
+                  "surface-container-low": "#191b23",
+                  "surface-dim": "#10131a",
+                  "secondary-fixed": "#6ffbbe",
+                  "secondary-container": "#00a572",
+                  "surface-container-lowest": "#0b0e15",
+                  "primary": "#adc6ff",
+                  "tertiary-container": "#df7412",
+                  "on-tertiary-container": "#461f00",
+                  "tertiary": "#ffb786"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.125rem",
+                  "lg": "0.25rem",
+                  "xl": "0.5rem",
+                  "full": "0.75rem"
+          },
+          "spacing": {
+                  "lg": "1.5rem",
+                  "xl": "2rem",
+                  "sm": "0.5rem",
+                  "md": "1rem",
+                  "xs": "0.25rem"
+          },
+          "fontFamily": {
+                  "body-base": ["Geist"],
+                  "headline-md": ["Geist"],
+                  "display-lg": ["Geist"],
+                  "mono-code": ["JetBrains Mono"],
+                  "label-sm": ["Geist"],
+                  "mono-path": ["JetBrains Mono"]
+          },
+          "fontSize": {
+                  "body-base": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                  "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                  "display-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                  "mono-code": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                  "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                  "mono-path": ["11px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "500"}]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #10131a;
+      color: #e1e2ec;
+      overflow: hidden;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .pane-border { border-color: #27272a; }
+    .table-row-hover:hover { background-color: #1f2937; }
+    
+    /* Interactive states for inputs */
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(173, 198, 255, 0.2);
+    }
+  </style>
+</head>
+<body class="font-body-base text-body-base">
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="w-[240px] flex-shrink-0 flex flex-col h-full py-md bg-background border-r border-outline-variant">
+<div class="px-md mb-xl">
+<h1 class="text-headline-md font-headline-md text-primary">Workspace</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-60">v1.0.4-stable</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">dashboard</span>
+<span class="text-label-sm font-label-sm">Dashboard</span>
+</a>
+<!-- Projects (Active) -->
+<a class="flex items-center px-md py-sm text-primary font-bold bg-surface-container-high border-r-2 border-primary transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">folder</span>
+<span class="text-label-sm font-label-sm">Projects</span>
+</a>
+<!-- Agents -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">smart_toy</span>
+<span class="text-label-sm font-label-sm">Agents</span>
+</a>
+<!-- Skills -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">bolt</span>
+<span class="text-label-sm font-label-sm">Skills</span>
+</a>
+<!-- Instructions -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">description</span>
+<span class="text-label-sm font-label-sm">Instructions</span>
+</a>
+<!-- Memory -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">database</span>
+<span class="text-label-sm font-label-sm">Memory</span>
+</a>
+<!-- Health -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">analytics</span>
+<span class="text-label-sm font-label-sm">Health</span>
+</a>
+<!-- Terminal -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">terminal</span>
+<span class="text-label-sm font-label-sm">Terminal</span>
+</a>
+<!-- Settings -->
+<a class="flex items-center px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined mr-md">settings</span>
+<span class="text-label-sm font-label-sm">Settings</span>
+</a>
+</nav>
+<div class="mt-auto px-md pt-md space-y-1">
+<a class="flex items-center py-xs text-on-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined mr-md text-[18px]">menu_book</span>
+<span class="text-label-sm font-label-sm">Docs</span>
+</a>
+<a class="flex items-center py-xs text-on-surface-variant hover:text-on-surface transition-all" href="#">
+<span class="material-symbols-outlined mr-md text-[18px]">contact_support</span>
+<span class="text-label-sm font-label-sm">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-1 flex flex-col min-w-0 bg-background overflow-hidden relative">
+<!-- TopNavBar -->
+<header class="h-12 flex justify-between items-center w-full px-md flex-shrink-0 border-b border-outline-variant bg-background">
+<div class="flex items-center gap-lg">
+<span class="text-headline-md font-headline-md font-bold text-on-background">Agent Manager</span>
+<nav class="hidden md:flex gap-md">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant px-sm py-1 transition-colors" href="#">File</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant px-sm py-1 transition-colors" href="#">Resources</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant px-sm py-1 transition-colors" href="#">View</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant px-sm py-1 transition-colors" href="#">Help</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-variant p-1 transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-variant p-1 transition-colors">account_circle</button>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex-1 overflow-auto p-lg flex flex-col gap-lg scrollbar-hide">
+<!-- Header Actions -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-display-lg font-display-lg text-on-surface mb-xs">Managed Projects</h2>
+<p class="text-on-surface-variant text-body-base">Inventory of localized agent clusters and resource mappings.</p>
+</div>
+<div class="flex gap-md">
+<button class="flex items-center gap-sm px-md py-sm bg-surface-container-high border border-outline-variant text-label-sm font-label-sm hover:bg-surface-variant transition-colors rounded">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+              Refresh
+            </button>
+<button class="flex items-center gap-sm px-md py-sm bg-primary text-on-primary text-label-sm font-label-sm hover:opacity-90 transition-opacity rounded">
+<span class="material-symbols-outlined text-[18px]">add</span>
+              Add Project
+            </button>
+</div>
+</div>
+<!-- Project Table -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant overflow-hidden flex flex-col">
+<!-- Table Header -->
+<div class="grid grid-cols-[2fr_3fr_1.5fr_2fr] px-md py-sm bg-surface-container border-b border-outline-variant text-label-sm font-label-sm text-on-surface-variant">
+<span>Project Name</span>
+<span>Path</span>
+<span>Last Scanned</span>
+<span>Resource Summary</span>
+</div>
+<!-- Table Body -->
+<div class="flex-1 overflow-y-auto divide-y divide-outline-variant">
+<!-- Row 1: Active Selection -->
+<div class="grid grid-cols-[2fr_3fr_1.5fr_2fr] px-md py-md table-row-hover transition-colors cursor-pointer bg-surface-container-high border-l-2 border-primary">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">folder</span>
+<span class="font-bold text-on-surface">Alpha-Nexus</span>
+</div>
+<div class="font-mono-path text-mono-path text-on-surface-variant truncate">/volumes/cluster-01/agents/alpha-nexus</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">2m ago</div>
+<div class="flex gap-sm">
+<span class="px-xs py-[2px] bg-secondary-container/20 text-secondary text-[10px] font-mono-code rounded border border-secondary/30">8 AGENTS</span>
+<span class="px-xs py-[2px] bg-tertiary-container/20 text-tertiary text-[10px] font-mono-code rounded border border-tertiary/30">14 SKILLS</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-[2fr_3fr_1.5fr_2fr] px-md py-md table-row-hover transition-colors cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[20px]">folder</span>
+<span class="text-on-surface">Deep-Thought-v4</span>
+</div>
+<div class="font-mono-path text-mono-path text-on-surface-variant truncate">/root/deploy/research/deep-thought-v4</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">14h ago</div>
+<div class="flex gap-sm">
+<span class="px-xs py-[2px] bg-secondary-container/20 text-secondary text-[10px] font-mono-code rounded border border-secondary/30">3 AGENTS</span>
+<span class="px-xs py-[2px] bg-tertiary-container/20 text-tertiary text-[10px] font-mono-code rounded border border-tertiary/30">32 SKILLS</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-[2fr_3fr_1.5fr_2fr] px-md py-md table-row-hover transition-colors cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[20px]">folder_open</span>
+<span class="text-on-surface">Legacy-Support</span>
+</div>
+<div class="font-mono-path text-mono-path text-on-surface-variant truncate">/mnt/archive/legacy-systems</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">6d ago</div>
+<div class="flex gap-sm">
+<span class="px-xs py-[2px] bg-secondary-container/20 text-secondary text-[10px] font-mono-code rounded border border-secondary/30">1 AGENT</span>
+<span class="px-xs py-[2px] bg-outline-variant/20 text-outline-variant text-[10px] font-mono-code rounded border border-outline-variant/30">0 SKILLS</span>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-[2fr_3fr_1.5fr_2fr] px-md py-md table-row-hover transition-colors cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-outline text-[20px]">folder</span>
+<span class="text-on-surface">Stealth-Ops-Delta</span>
+</div>
+<div class="font-mono-path text-mono-path text-on-surface-variant truncate">/crypt/secure/delta/ops</div>
+<div class="text-label-sm font-label-sm text-on-surface-variant">Just now</div>
+<div class="flex gap-sm">
+<span class="px-xs py-[2px] bg-secondary-container/20 text-secondary text-[10px] font-mono-code rounded border border-secondary/30">12 AGENTS</span>
+<span class="px-xs py-[2px] bg-tertiary-container/20 text-tertiary text-[10px] font-mono-code rounded border border-tertiary/30">5 SKILLS</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Terminal Drawer -->
+<footer class="h-40 bg-[#000000] border-t border-outline-variant flex flex-col flex-shrink-0">
+<div class="flex items-center justify-between px-md h-8 bg-surface-container-lowest border-b border-outline-variant">
+<div class="flex items-center gap-md">
+<span class="text-mono-path font-mono-path text-secondary uppercase">Project: agent-manager | Scan: Complete</span>
+</div>
+<div class="flex items-center gap-lg">
+<span class="text-mono-path font-mono-path text-on-surface-variant hover:text-on-surface cursor-pointer">Agents: 3</span>
+<span class="text-mono-path font-mono-path text-error hover:text-on-surface cursor-pointer">Warnings: 2</span>
+</div>
+</div>
+<div class="flex-1 overflow-auto p-sm font-mono-code text-mono-code scrollbar-hide">
+<div class="flex gap-sm">
+<span class="text-secondary">[INFO]</span>
+<span class="text-on-surface-variant">09:14:02 - Initializing scan of Alpha-Nexus...</span>
+</div>
+<div class="flex gap-sm">
+<span class="text-secondary">[INFO]</span>
+<span class="text-on-surface-variant">09:14:05 - Found 8 active agent manifests. Mapping to Skill-Tree.</span>
+</div>
+<div class="flex gap-sm">
+<span class="text-tertiary">[WARN]</span>
+<span class="text-on-surface-variant">09:14:08 - Agent 'Nexus-Core' memory buffer at 84% capacity.</span>
+</div>
+<div class="flex gap-sm">
+<span class="text-secondary">[INFO]</span>
+<span class="text-on-surface-variant">09:14:10 - Alpha-Nexus scan complete. Resource summary updated.</span>
+</div>
+<div class="flex gap-sm mt-1">
+<span class="text-primary">&gt;</span>
+<span class="animate-pulse bg-primary w-2 h-4"></span>
+</div>
+</div>
+</footer>
+</main>
+<!-- Details Panel (Right) -->
+<aside class="w-[320px] flex-shrink-0 bg-background border-l border-outline-variant flex flex-col">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="text-label-sm font-label-sm font-bold uppercase tracking-wider text-on-surface-variant">Project Details</h3>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">close</button>
+</div>
+<div class="flex-1 overflow-y-auto scrollbar-hide">
+<!-- Visual Header -->
+<div class="h-32 bg-surface-container-highest relative overflow-hidden">
+<div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle at 2px 2px, #8c909f 1px, transparent 0); background-size: 16px 16px;"></div>
+<div class="absolute bottom-md left-md">
+<span class="text-label-sm font-label-sm bg-primary/20 text-primary border border-primary/30 px-sm py-[2px] rounded mb-xs inline-block">PRODUCTION</span>
+<h4 class="text-headline-md font-headline-md text-on-surface">Alpha-Nexus</h4>
+</div>
+</div>
+<!-- Section: Stats -->
+<div class="p-md border-b border-outline-variant grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-low p-sm border border-outline-variant rounded">
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-60 mb-xs">Active Agents</p>
+<p class="text-headline-md font-headline-md text-secondary">08</p>
+</div>
+<div class="bg-surface-container-low p-sm border border-outline-variant rounded">
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-60 mb-xs">Total Skills</p>
+<p class="text-headline-md font-headline-md text-tertiary">14</p>
+</div>
+</div>
+<!-- Section: Tabs (Pill Style as per guidance) -->
+<div class="p-md">
+<div class="flex bg-surface-container-high rounded-full p-[2px] mb-md border border-outline-variant">
+<button class="flex-1 text-label-sm font-label-sm py-1 bg-primary text-on-primary rounded-full transition-all">Config</button>
+<button class="flex-1 text-label-sm font-label-sm py-1 text-on-surface-variant hover:text-on-surface transition-all">Agents</button>
+<button class="flex-1 text-label-sm font-label-sm py-1 text-on-surface-variant hover:text-on-surface transition-all">Logs</button>
+</div>
+<!-- Config JSON Inspector -->
+<div class="space-y-md">
+<div>
+<label class="text-label-sm font-label-sm text-on-surface-variant block mb-sm">Agent Manifest List</label>
+<div class="space-y-sm">
+<!-- Agent Item -->
+<div class="flex items-center justify-between p-sm bg-surface-container border border-outline-variant rounded">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-label-sm font-label-sm text-on-surface">Nexus-Core</span>
+</div>
+<span class="font-mono-code text-[10px] text-on-surface-variant">v2.1.0</span>
+</div>
+<!-- Agent Item -->
+<div class="flex items-center justify-between p-sm bg-surface-container border border-outline-variant rounded opacity-80">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-label-sm font-label-sm text-on-surface">Data-Harvester</span>
+</div>
+<span class="font-mono-code text-[10px] text-on-surface-variant">v1.4.2</span>
+</div>
+<!-- Agent Item -->
+<div class="flex items-center justify-between p-sm bg-surface-container border border-outline-variant rounded">
+<div class="flex items-center gap-sm">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="text-label-sm font-label-sm text-on-surface">Relay-Node-A</span>
+</div>
+<span class="font-mono-code text-[10px] text-error">CRIT-4</span>
+</div>
+</div>
+</div>
+<div class="pt-md border-t border-outline-variant">
+<label class="text-label-sm font-label-sm text-on-surface-variant block mb-sm">Environment Vars</label>
+<div class="bg-surface-container-lowest p-md border border-outline-variant font-mono-code text-[11px] text-secondary leading-relaxed">
+<div>NODE_ENV="production"</div>
+<div>CLUSTER_KEY="ax_99...4k"</div>
+<div>MEMORY_SOFT_LIMIT="4GB"</div>
+<div>AGENT_TTL="3600"</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="p-md bg-surface-container-low border-t border-outline-variant">
+<button class="w-full py-sm bg-surface-variant text-on-surface text-label-sm font-label-sm border border-outline-variant hover:bg-outline-variant transition-colors rounded">
+          Open in Terminal
+        </button>
+</div>
+</aside>
+</div>
+<script>
+    // Micro-interactions for table rows
+    document.querySelectorAll('.table-row-hover').forEach(row => {
+      row.addEventListener('click', () => {
+        // Remove active state from all
+        document.querySelectorAll('.table-row-hover').forEach(r => {
+          r.classList.remove('bg-surface-container-high', 'border-l-2', 'border-primary');
+        });
+        // Add to clicked
+        row.classList.add('bg-surface-container-high', 'border-l-2', 'border-primary');
+      });
+    });
+
+    // Refresh simulation
+    document.querySelector('button:has(.material-symbols-outlined:contains("refresh"))').addEventListener('click', function() {
+      const icon = this.querySelector('.material-symbols-outlined');
+      icon.classList.add('animate-spin');
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+      }, 1000);
+    });
+  </script>
+</body></html>

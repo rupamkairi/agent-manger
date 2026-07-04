@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Agent Manager | Instructions Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;family=Geist:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#10131a",
+                        "on-secondary": "#003824",
+                        "on-surface": "#e1e2ec",
+                        "tertiary-fixed-dim": "#ffb786",
+                        "primary-fixed-dim": "#adc6ff",
+                        "error": "#ffb4ab",
+                        "outline": "#8c909f",
+                        "outline-variant": "#424754",
+                        "on-tertiary-fixed-variant": "#723600",
+                        "on-primary-fixed-variant": "#004395",
+                        "surface-variant": "#32353c",
+                        "surface": "#10131a",
+                        "surface-container-highest": "#32353c",
+                        "on-background": "#e1e2ec",
+                        "on-tertiary": "#502400",
+                        "surface-bright": "#363941",
+                        "primary-container": "#4d8eff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-primary": "#002e6a",
+                        "on-tertiary-fixed": "#311400",
+                        "secondary-fixed-dim": "#4edea3",
+                        "secondary": "#4edea3",
+                        "on-secondary-fixed": "#002113",
+                        "surface-container-high": "#272a31",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#005ac2",
+                        "on-error": "#690005",
+                        "surface-container": "#1d2027",
+                        "on-surface-variant": "#c2c6d6",
+                        "on-primary-fixed": "#001a42",
+                        "inverse-surface": "#e1e2ec",
+                        "tertiary-fixed": "#ffdcc6",
+                        "on-secondary-container": "#00311f",
+                        "surface-tint": "#adc6ff",
+                        "inverse-on-surface": "#2e3038",
+                        "on-primary-container": "#00285d",
+                        "surface-container-low": "#191b23",
+                        "surface-dim": "#10131a",
+                        "secondary-fixed": "#6ffbbe",
+                        "secondary-container": "#00a572",
+                        "surface-container-lowest": "#0b0e15",
+                        "primary": "#adc6ff",
+                        "tertiary-container": "#df7412",
+                        "on-tertiary-container": "#461f00",
+                        "tertiary": "#ffb786"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "lg": "1.5rem",
+                        "xl": "2rem",
+                        "sm": "0.5rem",
+                        "md": "1rem",
+                        "xs": "0.25rem"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Geist"],
+                        "headline-md": ["Geist"],
+                        "display-lg": ["Geist"],
+                        "mono-code": ["JetBrains Mono"],
+                        "label-sm": ["Geist"],
+                        "mono-path": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "body-base": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "display-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "mono-code": ["13px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "1.0", "fontWeight": "500"}],
+                        "mono-path": ["11px", {"lineHeight": "1.0", "letterSpacing": "0.05em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 18px;
+        }
+        .line-numbers {
+            counter-reset: line;
+        }
+        .line-numbers div::before {
+            counter-increment: line;
+            content: counter(line);
+            display: inline-block;
+            width: 2rem;
+            margin-right: 1rem;
+            text-align: right;
+            color: #424754;
+            font-family: 'JetBrains Mono', monospace;
+            user-select: none;
+        }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #10131a; }
+        ::-webkit-scrollbar-thumb { background: #32353c; border-radius: 2px; }
+        ::-webkit-scrollbar-thumb:hover { background: #424754; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-base overflow-hidden flex flex-col h-screen">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-md h-12 bg-background border-b border-outline-variant fixed top-0 z-50">
+<div class="flex items-center gap-lg">
+<span class="text-headline-md font-headline-md font-bold text-on-background">Agent Manager</span>
+<nav class="hidden md:flex gap-md">
+<a class="text-primary border-b-2 border-primary pb-1 font-label-sm text-label-sm transition-colors" href="#">File</a>
+<a class="text-on-surface-variant hover:bg-surface-variant px-sm py-0.5 rounded transition-colors font-label-sm text-label-sm" href="#">Resources</a>
+<a class="text-on-surface-variant hover:bg-surface-variant px-sm py-0.5 rounded transition-colors font-label-sm text-label-sm" href="#">View</a>
+<a class="text-on-surface-variant hover:bg-surface-variant px-sm py-0.5 rounded transition-colors font-label-sm text-label-sm" href="#">Help</a>
+</nav>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-xs hover:bg-surface-variant rounded-full text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-xs hover:bg-surface-variant rounded-full text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 pt-12 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-full py-md bg-background border-r border-outline-variant w-[240px] flex-shrink-0">
+<div class="px-md mb-lg">
+<div class="text-headline-md font-headline-md text-primary font-bold">Workspace</div>
+<div class="text-mono-path font-mono-path text-on-surface-variant opacity-60">v1.0.4-stable</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">folder</span> Projects
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">smart_toy</span> Agents
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">bolt</span> Skills
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-primary font-bold bg-surface-container-high border-r-2 border-primary transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">description</span> Instructions
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">database</span> Memory
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">analytics</span> Health
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">terminal</span> Terminal
+                </a>
+<a class="flex items-center gap-sm px-md py-2 text-on-surface-variant hover:bg-surface-variant transition-all duration-150 font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+                </a>
+</nav>
+<div class="mt-auto px-md pt-md space-y-1">
+<a class="flex items-center gap-sm py-2 text-on-surface-variant hover:text-on-surface transition-all font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">menu_book</span> Docs
+                </a>
+<a class="flex items-center gap-sm py-2 text-on-surface-variant hover:text-on-surface transition-all font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined">contact_support</span> Support
+                </a>
+</div>
+</aside>
+<!-- Main Editor Shell -->
+<main class="flex flex-1 overflow-hidden bg-background">
+<!-- File Explorer Pane (Pane 1) -->
+<div class="w-64 border-r border-outline-variant flex flex-col">
+<div class="p-md h-12 border-b border-outline-variant flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Explorer</span>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">create_new_folder</span>
+</button>
+</div>
+<div class="flex-1 overflow-y-auto py-sm">
+<div class="px-md py-1.5 flex items-center gap-xs text-on-surface-variant opacity-60 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">expand_more</span>
+<span class="material-symbols-outlined text-[14px]">folder_open</span>
+                        CORE_INSTRUCTIONS
+                    </div>
+<div class="pl-lg pr-md py-1 flex items-center gap-xs bg-surface-container-high text-primary border-r-2 border-primary font-label-sm text-label-sm cursor-pointer">
+<span class="material-symbols-outlined text-[14px]">description</span>
+                        system_prompt_v2.md
+                    </div>
+<div class="pl-lg pr-md py-1 flex items-center gap-xs text-on-surface-variant hover:bg-surface-variant transition-colors font-label-sm text-label-sm cursor-pointer">
+<span class="material-symbols-outlined text-[14px]">description</span>
+                        safety_alignment.md
+                    </div>
+<div class="px-md py-1.5 flex items-center gap-xs text-on-surface-variant opacity-60 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="material-symbols-outlined text-[14px]">folder</span>
+                        PROTOCOLS
+                    </div>
+<div class="px-md py-1.5 flex items-center gap-xs text-on-surface-variant opacity-60 font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="material-symbols-outlined text-[14px]">folder</span>
+                        ARCHIVE
+                    </div>
+</div>
+</div>
+<!-- Markdown Editor Pane (Pane 2) -->
+<div class="flex-1 flex flex-col overflow-hidden">
+<div class="h-12 border-b border-outline-variant flex items-center justify-between px-md">
+<div class="flex items-center gap-lg h-full">
+<div class="flex items-center h-full border-b-2 border-primary px-sm">
+<button class="text-primary font-label-sm text-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">edit</span> Edit
+                            </button>
+</div>
+<div class="flex items-center h-full px-sm border-b-2 border-transparent hover:border-outline transition-all">
+<button class="text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">visibility</span> Preview
+                            </button>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-sm py-1 rounded bg-primary-container text-on-primary-container font-label-sm text-label-sm hover:opacity-80 transition-all">
+<span class="material-symbols-outlined text-[16px]">save</span> Save
+                        </button>
+<button class="flex items-center gap-xs px-sm py-1 rounded border border-outline-variant text-on-surface-variant font-label-sm text-label-sm hover:bg-surface-variant transition-all">
+<span class="material-symbols-outlined text-[16px]">history</span> Revert
+                        </button>
+<button class="flex items-center gap-xs px-sm py-1 rounded border border-error text-error font-label-sm text-label-sm hover:bg-error-container hover:text-on-error-container transition-all">
+<span class="material-symbols-outlined text-[16px]">delete</span> Delete
+                        </button>
+</div>
+</div>
+<!-- Editor Canvas -->
+<div class="flex-1 flex overflow-hidden">
+<div class="flex-1 bg-[#000000] overflow-y-auto p-md line-numbers font-mono-code text-mono-code text-on-surface leading-relaxed">
+<div># System Prompt v2</div>
+<div>## Core Directive</div>
+<div>You are an autonomous agent manager tasked with optimizing the throughput of multi-node execution chains.</div>
+<div></div>
+<div>### Guidelines</div>
+<div>1. Maintain high-fidelity telemetry across all sub-agents.</div>
+<div>2. Ensure latency remains below 150ms for instruction parsing.</div>
+<div>3. Implement error recovery loops on terminal signal failures.</div>
+<div></div>
+<div>### Protocol Stack</div>
+<div>- **Security**: AES-256 wrapping for all state memory.</div>
+<div>- **Memory**: Vectorized context lookup with 0.86 similarity threshold.</div>
+<div>- **Logic**: Hierarchical task decomposition.</div>
+<div></div>
+<div>json</div>
+<div>{</div>
+<div>  "agent_id": "manager-primary",</div>
+<div>  "version": "1.0.4",</div>
+<div>  "status": "ready"</div>
+<div>}</div>
+<div></div>
+<div></div>
+<div><!-- Add your additional specific logic here --></div>
+<div></div>
+<div>### Environmental Constraints</div>
+<div>Restrict all API calls to the localized Docker subnet (172.18.0.0/16). External fetching must be explicitly routed through the secure proxy node 'guard-alpha'.</div>
+</div>
+</div>
+<!-- Terminal Drawer (Contextual) -->
+<div class="h-40 bg-black border-t border-outline-variant p-md font-mono-code text-mono-code overflow-y-auto">
+<div class="flex justify-between items-center mb-sm">
+<span class="text-secondary opacity-80 uppercase tracking-tighter">Terminal Console</span>
+<span class="text-on-surface-variant text-[10px]">CONNECTED :: 127.0.0.1:9092</span>
+</div>
+<div class="text-on-surface-variant opacity-50">[INFO] 14:22:01 - Loading markdown parser...</div>
+<div class="text-on-surface-variant opacity-50">[INFO] 14:22:02 - Initializing file sync for system_prompt_v2.md</div>
+<div class="text-secondary">[OK] 14:22:03 - Workspace synchronized with Git HEAD</div>
+<div class="text-error">[WARN] 14:22:15 - Unsaved changes detected in memory buffer</div>
+<div class="flex items-center gap-sm mt-1">
+<span class="text-primary">λ</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface flex-1 p-0" placeholder="Execute instruction command..." type="text"/>
+</div>
+</div>
+</div>
+<!-- Details Panel (Pane 3) -->
+<div class="w-[320px] border-l border-outline-variant bg-surface-container-low flex flex-col">
+<div class="p-md h-12 border-b border-outline-variant flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Metadata</span>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+<div class="flex-1 p-md space-y-lg">
+<section>
+<label class="text-mono-path font-mono-path text-on-surface-variant text-[10px] uppercase block mb-sm">File Information</label>
+<div class="space-y-md">
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Path</span>
+<span class="text-on-surface font-mono-code text-mono-code">/core/instructions/system_prompt_v2.md</span>
+</div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Scope</span>
+<div class="flex items-center gap-xs mt-xs">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="text-on-surface font-label-sm text-label-sm">Global Admin</span>
+</div>
+</div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Target Agents</span>
+<div class="flex flex-wrap gap-xs mt-xs">
+<span class="px-sm py-0.5 bg-surface-variant rounded text-[11px] text-on-surface">LLM-01</span>
+<span class="px-sm py-0.5 bg-surface-variant rounded text-[11px] text-on-surface">Executor-B</span>
+</div>
+</div>
+</div>
+</section>
+<section class="pt-lg border-t border-outline-variant">
+<label class="text-mono-path font-mono-path text-on-surface-variant text-[10px] uppercase block mb-sm">Activity History</label>
+<div class="space-y-md">
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Last Modified</span>
+<span class="text-on-surface font-body-base text-body-base">Oct 24, 2023 · 14:15:02</span>
+</div>
+<div>
+<span class="text-on-surface-variant font-label-sm text-label-sm block">Modifier</span>
+<div class="flex items-center gap-sm mt-xs">
+<div class="w-6 h-6 rounded bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">JD</div>
+<span class="text-on-surface font-label-sm text-label-sm">Jordan D. (Admin)</span>
+</div>
+</div>
+</div>
+</section>
+<section class="pt-lg border-t border-outline-variant">
+<label class="text-mono-path font-mono-path text-on-surface-variant text-[10px] uppercase block mb-sm">Version Control</label>
+<div class="p-sm bg-surface-container rounded border border-outline-variant">
+<div class="flex justify-between items-center mb-xs">
+<span class="text-on-surface font-label-sm text-label-sm">v1.0.4 - Commit hash</span>
+<span class="text-primary font-mono-code text-mono-code text-[11px]">8f2a1b</span>
+</div>
+<p class="text-on-surface-variant text-[11px] leading-tight">Optimized hierarchical decomposition logic for better throughput.</p>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="flex justify-between items-center px-md w-full h-8 bg-surface-container-lowest border-t border-outline-variant fixed bottom-0 z-50">
+<div class="text-secondary font-mono-path text-mono-path">Project: agent-manager | Scan: Complete</div>
+<div class="flex gap-md">
+<span class="text-secondary font-mono-path text-mono-path">Agents: 3</span>
+<span class="text-secondary font-mono-path text-mono-path">Warnings: 2</span>
+</div>
+</footer>
+<script>
+        // Micro-interactions for terminal
+        const terminalInput = document.querySelector('input');
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = e.target.value;
+                const terminalBody = terminalInput.parentElement.parentElement;
+                const newLine = document.createElement('div');
+                newLine.className = 'text-primary mt-1';
+                newLine.innerHTML = `<span class="opacity-50 text-on-surface-variant">λ</span> <span class="text-on-surface">${command}</span>`;
+                terminalBody.insertBefore(newLine, terminalInput.parentElement);
+                
+                // Mock response
+                setTimeout(() => {
+                    const response = document.createElement('div');
+                    response.className = 'text-on-surface-variant opacity-70 ml-4';
+                    response.innerText = `Command '${command}' not found in current environment context.`;
+                    terminalBody.insertBefore(response, terminalInput.parentElement);
+                    terminalBody.scrollTop = terminalBody.scrollHeight;
+                }, 400);
+
+                e.target.value = '';
+            }
+        });
+
+        // Tab Switching logic
+        const tabs = document.querySelectorAll('.h-full.border-b-2');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('border-primary'));
+                tabs.forEach(t => t.querySelector('button').classList.remove('text-primary'));
+                tabs.forEach(t => t.querySelector('button').classList.add('text-on-surface-variant'));
+                
+                tab.classList.add('border-primary');
+                tab.querySelector('button').classList.add('text-primary');
+                tab.querySelector('button').classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+</body></html>
