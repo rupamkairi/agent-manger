@@ -1,0 +1,29 @@
+{
+  "name": "ai-resource-manager",
+  "version": "0.0.1",
+  "tasks": {
+    "vite:dev": "vite",
+    "dev": "deno task dev:desktop",
+    "dev:desktop": "deno desktop --hmr .",
+    "build": "vite build",
+    "build:desktop": "vite build && deno desktop --output ./dist/AIResourceManager.app .",
+    "fmt": "deno fmt",
+    "lint": "deno lint"
+  },
+  "desktop": {
+    "app": {
+      "name": "AI Resource Manager",
+      "identifier": "com.rupamkairi.ai-resource-manager"
+    },
+    "backend": "webview",
+    "output": {
+      "macos": "./dist/AIResourceManager.app"
+    }
+  },
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  }
+}
