@@ -1,6 +1,8 @@
 import {
   detectAgentForInstructionPath,
+  extractSkillDescription,
   getProjectResourceCandidates,
+  scanProjectPaths,
   validateSkillManifest,
 } from "./scanner.ts";
 
@@ -30,4 +32,16 @@ Deno.test("skill manifest validation requires name and description", () => {
   assertEquals(validateSkillManifest("# planner\n\n---\ndescription: Plans work\n---").status, "valid");
   assertEquals(validateSkillManifest("# planner").status, "warning");
   assertEquals(validateSkillManifest("").status, "invalid");
+});
+
+Deno.test("extractSkillDescription prefers explicit metadata then heading", () => {
+  assertEquals(extractSkillDescription("# planner\n\ndescription: Plans work"), "Plans work");
+  assertEquals(extractSkillDescription("# planner"), "planner");
+});
+
+Deno.test("scanProjectPaths accepts arbitrary folder with zero detected resources", async () => {
+  const dir = await Deno.makeTempDir();
+  const resources = await scanProjectPaths(dir);
+
+  assertEquals(resources.length, 0);
 });

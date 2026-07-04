@@ -13,7 +13,6 @@ export type PageId =
   | "instructions"
   | "memory"
   | "health"
-  | "terminal"
   | "settings";
 
 export interface Project {
@@ -26,6 +25,19 @@ export interface Project {
   skillCount: number;
   instructionCount: number;
   warningCount: number;
+}
+
+export interface PersistedProject {
+  id: string;
+  name: string;
+  path: string;
+  lastScanned: string;
+}
+
+export interface PersistedAppState {
+  version: number;
+  selectedProjectId: string | null;
+  projects: PersistedProject[];
 }
 
 export interface Agent {
@@ -81,7 +93,7 @@ export interface Warning {
 
 export interface ScanSummary {
   status: ScanStatus;
-  selectedProjectId: string;
+  selectedProjectId: string | null;
   lastScanTime: string;
   resourceCount: number;
   detectedAgentsCount: number;
@@ -93,6 +105,15 @@ export interface TerminalLine {
   level: "INFO" | "WARN" | "ERR" | "EXEC" | "OK";
   time: string;
   message: string;
+}
+
+export interface TerminalCommandResult {
+  command: string;
+  cwd: string | null;
+  shell: "bash";
+  exitCode: number;
+  stdout: string;
+  stderr: string;
 }
 
 export interface ResourceCandidate {

@@ -1,128 +1,179 @@
 <script lang="ts">
-  import { Info, X } from "@lucide/svelte";
+  import { X } from "@lucide/svelte";
   import {
-    agents,
     getCurrentPage,
+    getSelectedInstruction,
+    getSelectedAgent,
+    getSelectedSkill,
     getSelectedProject,
-    instructions,
-    projects,
-    skills,
+    getScanSummary,
     toggleDetails,
-    warnings,
   } from "$lib/stores/app-state.svelte";
   import ResourceBadge from "./resource-badge.svelte";
-  import StatusDot from "./status-dot.svelte";
+  import WipState from "./wip-state.svelte";
 
   function title() {
     const page = getCurrentPage();
     if (page === "projects") return "Project Details";
-    if (page === "instructions") return "Metadata";
-    if (page === "skills") return "Skill Metadata";
-    return "System Metadata";
+    if (page === "agents") return "Agent Details";
+    if (page === "skills") return "Skill Details";
+    if (page === "instructions") return "Instruction Details";
+    if (page === "health") return "Health Context";
+    return "Panel";
   }
 </script>
 
-<aside class="flex w-80 shrink-0 flex-col border-l border-outline-variant bg-surface-low">
-  <div class="flex h-12 items-center justify-between border-b border-outline-variant px-5">
-    <h2 class="text-label uppercase tracking-wider text-on-surface">{title()}</h2>
+<aside class="flex w-72 shrink-0 flex-col border-l border-outline-variant bg-surface-low">
+  <div class="flex h-10 items-center justify-between border-b border-outline-variant px-4">
+    <h2 class="text-label text-on-surface">{title()}</h2>
     <button class="text-on-surface-variant hover:text-on-surface" onclick={toggleDetails} aria-label="Close details">
-      {#if getCurrentPage() === "dashboard"}
-        <Info class="size-5" />
-      {:else}
-        <X class="size-5" />
-      {/if}
+      <X class="size-4" />
     </button>
   </div>
 
   {#if getCurrentPage() === "projects"}
-    <div class="border-b border-outline-variant bg-surface-high p-5">
-      <ResourceBadge label={getSelectedProject().environment} tone="primary" />
-      <h3 class="mt-3 text-2xl font-semibold">{getSelectedProject().name}</h3>
-    </div>
-    <div class="grid grid-cols-2 gap-3 border-b border-outline-variant p-5">
-      <div class="border border-outline-variant p-3">
-        <div class="text-sm text-on-surface-variant">Active Agents</div>
-        <div class="text-2xl font-semibold text-success">{String(getSelectedProject().agentCount).padStart(2, "0")}</div>
+    {#if getSelectedProject()}
+      <div class="border-b border-outline-variant bg-surface-high p-4">
+        <ResourceBadge label={getSelectedProject()?.environment ?? "local"} tone="primary" />
+        <h3 class="mt-2 text-xl font-semibold">{getSelectedProject()?.name}</h3>
+        <p class="mt-1 break-all text-xs text-on-surface-variant">{getSelectedProject()?.path}</p>
       </div>
-      <div class="border border-outline-variant p-3">
-        <div class="text-sm text-on-surface-variant">Total Skills</div>
-        <div class="text-2xl font-semibold text-warning">{getSelectedProject().skillCount}</div>
+      <div class="grid grid-cols-2 gap-2 border-b border-outline-variant p-4">
+        <div class="border border-outline-variant p-2.5">
+          <div class="text-xs text-on-surface-variant">Active Agents</div>
+          <div class="text-xl font-semibold text-success">{String(getSelectedProject()?.agentCount ?? 0).padStart(2, "0")}</div>
+        </div>
+        <div class="border border-outline-variant p-2.5">
+          <div class="text-xs text-on-surface-variant">Skills</div>
+          <div class="text-xl font-semibold text-warning">{getSelectedProject()?.skillCount ?? 0}</div>
+        </div>
       </div>
-    </div>
-    <div class="space-y-3 p-5">
-      <h3 class="text-sm font-semibold">Agent Manifest List</h3>
-      {#each agents as agent}
-        <div class="flex items-center justify-between border border-outline-variant bg-surface-high px-3 py-2">
-          <span class="flex items-center gap-2"><StatusDot status={agent.status} />{agent.name}</span>
-          <span class="text-path text-on-surface-variant">{agent.version}</span>
+      <div class="space-y-3 p-4 text-xs">
+        <div>
+          <div class="text-on-surface-variant">Last Scanned</div>
+          <div>{getSelectedProject()?.lastScanned}</div>
         </div>
-      {/each}
-    </div>
-  {:else if getCurrentPage() === "instructions"}
-    <div class="space-y-6 p-5">
-      <section>
-        <h3 class="text-label uppercase tracking-wider text-on-surface-variant">File Information</h3>
-        <p class="mt-3 text-sm">Path</p>
-        <p class="text-code text-on-surface">{instructions[0].path}</p>
-        <p class="mt-4 text-sm">Scope</p>
-        <p class="flex items-center gap-2"><StatusDot status="valid" />Global Admin</p>
-      </section>
-      <section class="border-t border-outline-variant pt-5">
-        <h3 class="text-label uppercase tracking-wider text-on-surface-variant">Version Control</h3>
-        <div class="mt-3 border border-outline-variant bg-surface-high p-3">
-          <div class="flex justify-between"><span>v1.0.4</span><span class="text-primary">8f2a1b</span></div>
-          <p class="mt-1 text-xs text-on-surface-variant">Optimized hierarchical decomposition logic.</p>
+        <div>
+          <div class="text-on-surface-variant">Instruction Files</div>
+          <div>{getSelectedProject()?.instructionCount ?? 0}</div>
         </div>
-      </section>
-    </div>
+      </div>
+    {:else}
+      <div class="p-4">
+        <WipState compact title="No project selected" description="Add a folder or select a managed project to see its details here." />
+      </div>
+    {/if}
+  {:else if getCurrentPage() === "agents"}
+    {#if getSelectedAgent()}
+      <div class="border-b border-outline-variant bg-surface-high p-4">
+        <ResourceBadge label={getSelectedAgent()?.status ?? "unknown"} tone={getSelectedAgent()?.commandStatus ?? "unknown"} />
+        <h3 class="mt-2 text-xl font-semibold">{getSelectedAgent()?.name}</h3>
+      </div>
+      <div class="space-y-3 p-4 text-xs">
+        <div>
+          <div class="text-on-surface-variant">Binary Path</div>
+          <div class="break-all">{getSelectedAgent()?.binaryPath}</div>
+        </div>
+        <div>
+          <div class="text-on-surface-variant">Version</div>
+          <div>{getSelectedAgent()?.version}</div>
+        </div>
+        <div>
+          <div class="text-on-surface-variant">Command Status</div>
+          <div>{getSelectedAgent()?.commandStatus}</div>
+        </div>
+        <div>
+          <div class="mb-1 text-on-surface-variant">Detected Resource Paths</div>
+          {#if (getSelectedAgent()?.resourcePaths.length ?? 0) > 0}
+            <div class="space-y-1">
+              {#each getSelectedAgent()?.resourcePaths ?? [] as path}
+                <div class="break-all border border-outline-variant bg-background px-2 py-1">{path}</div>
+              {/each}
+            </div>
+          {:else}
+            <div class="text-on-surface-variant">No known paths detected.</div>
+          {/if}
+        </div>
+      </div>
+    {:else}
+      <div class="p-4">
+        <WipState compact title="No agent selected" description="Run detection or pick an agent row to inspect binary and resource paths." />
+      </div>
+    {/if}
   {:else if getCurrentPage() === "skills"}
-    <div class="space-y-4 p-5">
-      {#each skills as skill}
-        <div class="border border-outline-variant bg-surface-high p-3">
-          <div class="flex items-center justify-between">
-            <span class="font-semibold">{skill.name}</span>
-            <StatusDot status={skill.status} />
-          </div>
-          <p class="mt-2 text-sm text-on-surface-variant">{skill.location}</p>
+    {#if getSelectedSkill()}
+      <div class="border-b border-outline-variant bg-surface-high p-4">
+        <ResourceBadge label={getSelectedSkill()?.scope ?? "project"} tone={getSelectedSkill()?.scope ?? "project"} />
+        <h3 class="mt-2 text-xl font-semibold">{getSelectedSkill()?.name}</h3>
+        <p class="mt-1 text-xs text-on-surface-variant">{getSelectedSkill()?.description}</p>
+      </div>
+      <div class="space-y-3 p-4 text-xs">
+        <div>
+          <div class="text-on-surface-variant">Agent Target</div>
+          <div class="uppercase">{getSelectedSkill()?.agentTarget}</div>
         </div>
-      {/each}
+        <div>
+          <div class="text-on-surface-variant">Location</div>
+          <div class="break-all">{getSelectedSkill()?.location}</div>
+        </div>
+        <div>
+          <div class="text-on-surface-variant">Status</div>
+          <div class="uppercase">{getSelectedSkill()?.status}</div>
+        </div>
+      </div>
+    {:else}
+      <div class="p-4">
+        <WipState compact title="No skill selected" description="Pick a skill row to inspect its manifest and validation state." />
+      </div>
+    {/if}
+  {:else if getCurrentPage() === "instructions"}
+    {#if getSelectedInstruction()}
+      <div class="border-b border-outline-variant bg-surface-high p-4">
+        <ResourceBadge label={getSelectedInstruction()?.scope ?? "project"} tone={getSelectedInstruction()?.scope ?? "project"} />
+        <h3 class="mt-2 text-xl font-semibold">{getSelectedInstruction()?.name}</h3>
+        <p class="mt-1 break-all text-xs text-on-surface-variant">{getSelectedInstruction()?.path}</p>
+      </div>
+      <div class="space-y-3 p-4 text-xs">
+        <div>
+          <div class="text-on-surface-variant">Agent Target</div>
+          <div class="uppercase">{getSelectedInstruction()?.agentTarget}</div>
+        </div>
+        <div>
+          <div class="text-on-surface-variant">Last Modified</div>
+          <div>{getSelectedInstruction()?.lastModified}</div>
+        </div>
+        <div>
+          <div class="text-on-surface-variant">Status</div>
+          <div class="uppercase">{getSelectedInstruction()?.status}</div>
+        </div>
+        <div>
+          <div class="mb-1 text-on-surface-variant">Preview</div>
+          <pre class="max-h-48 overflow-auto whitespace-pre-wrap border border-outline-variant bg-background p-2 text-[11px] text-on-surface">{getSelectedInstruction()?.content?.slice(0, 480) ?? ""}</pre>
+        </div>
+      </div>
+    {:else}
+      <div class="p-4">
+        <WipState compact title="No instruction selected" description="Pick an instruction row to inspect its file, scope, and content." />
+      </div>
+    {/if}
+  {:else if ["dashboard", "memory", "settings"].includes(getCurrentPage())}
+    <div class="p-4">
+      <WipState compact title="Panel WIP" description="This companion panel is intentionally disabled for the parked section." />
     </div>
   {:else}
-    <div class="space-y-6 p-5">
-      <div class="rounded border border-outline-variant bg-[radial-gradient(#424754_1px,transparent_1px)] [background-size:12px_12px] p-10 text-center">
-        <div class="mx-auto flex size-16 items-center justify-center rounded-full border border-primary text-primary">AM</div>
+    <div class="space-y-3 p-4 text-xs">
+      <div class="border border-outline-variant bg-surface-high p-3">
+        <div class="text-on-surface-variant">Selected Project</div>
+        <div class="mt-1">{getSelectedProject()?.name ?? "none"}</div>
       </div>
-      <section>
-        <h3 class="font-semibold">Active Topology</h3>
-        <p class="text-sm text-on-surface-variant">Decentralized Mesh Architecture (v2)</p>
-      </section>
-      <section class="space-y-3">
-        <div><div class="text-path text-outline">NODE_VERSION</div><div>LTS-20.11.0</div></div>
-        <div><div class="text-path text-outline">API_ENDPOINT</div><div class="text-primary">https://core.agent-manager.io/v1</div></div>
-        <div><div class="text-path text-outline">SYSTEM_UPTIME</div><div>14d 02h 11m 44s</div></div>
-      </section>
-      <section class="border-t border-outline-variant pt-5">
-        <h3 class="font-semibold">Active Projects</h3>
-        <div class="mt-3 space-y-2">
-          {#each projects.slice(0, 3) as project}
-            <div class="flex items-center justify-between bg-surface-high px-3 py-1.5">
-              <span>{project.name}</span>
-              <StatusDot status={project.warningCount > 2 ? "warning" : "valid"} />
-            </div>
-          {/each}
-        </div>
-      </section>
-      <section class="border-t border-outline-variant pt-5">
-        <h3 class="font-semibold">Warnings</h3>
-        <div class="mt-3 space-y-3">
-          {#each warnings as warning}
-            <div class="text-sm">
-              <div class="flex items-center gap-2 font-semibold"><StatusDot status={warning.severity} />{warning.resource}</div>
-              <p class="text-on-surface-variant">{warning.reason}</p>
-            </div>
-          {/each}
-        </div>
-      </section>
+      <div class="border border-outline-variant bg-surface-high p-3">
+        <div class="text-on-surface-variant">Detected Agents</div>
+        <div class="mt-1">{getScanSummary().detectedAgentsCount}</div>
+      </div>
+      <div class="border border-outline-variant bg-surface-high p-3">
+        <div class="text-on-surface-variant">Warnings</div>
+        <div class="mt-1">{getScanSummary().warningCount}</div>
+      </div>
     </div>
   {/if}
 </aside>

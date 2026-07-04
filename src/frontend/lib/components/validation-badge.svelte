@@ -11,7 +11,7 @@
   } = $props();
 </script>
 
-<span class="inline-flex items-center gap-2 whitespace-nowrap text-code uppercase text-on-surface">
+<span class="inline-flex items-center gap-1.5 whitespace-nowrap text-code uppercase text-on-surface">
   <StatusDot {status} />
   {label}
 </span>

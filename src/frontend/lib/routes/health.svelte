@@ -19,7 +19,7 @@
   <CommandBar actions={[{ label: "Refresh Scan", icon: RefreshCw, variant: "primary" }]} />
 </PageHeader>
 
-<div class="space-y-6">
+<div class="space-y-5">
   <ResourceTabs tabs={["All", "Skills", "Instructions", "Memory", "Agents"]} />
   <DataTable
     columns={[

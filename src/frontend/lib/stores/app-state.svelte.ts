@@ -3,207 +3,59 @@ import type {
   InstructionFile,
   MemoryFile,
   PageId,
+  PersistedAppState,
+  PersistedProject,
   Project,
   ScanSummary,
   Skill,
   TerminalLine,
   Warning,
 } from "../../../shared/types/resource";
+import { desktopApi } from "$lib/services/desktop-api";
 
-export const projects: Project[] = [
-  {
-    id: "agent-manager",
-    name: "agent-manager",
-    path: "/Users/rupamkairi/Projects/my-projects/agent-manger",
-    environment: "local",
-    lastScanned: "Just now",
-    agentCount: 3,
-    skillCount: 45,
-    instructionCount: 28,
-    warningCount: 2,
-  },
-  {
-    id: "alpha-nexus",
-    name: "Alpha-Nexus",
-    path: "/volumes/cluster-01/agents/alpha-nexus",
-    environment: "production",
-    lastScanned: "2m ago",
-    agentCount: 8,
-    skillCount: 14,
-    instructionCount: 12,
-    warningCount: 1,
-  },
-  {
-    id: "legacy-support",
-    name: "Legacy-Support",
-    path: "/mnt/archive/legacy-systems",
-    environment: "archive",
-    lastScanned: "6d ago",
-    agentCount: 1,
-    skillCount: 0,
-    instructionCount: 4,
-    warningCount: 4,
-  },
-];
+export const projects = $state<Project[]>([]);
+export const agents = $state<Agent[]>([]);
+export const skills = $state<Skill[]>([]);
+export const instructions = $state<InstructionFile[]>([]);
+export const memoryFiles = $state<MemoryFile[]>([]);
 
-export const agents: Agent[] = [
+const baseWarnings: Warning[] = [
   {
-    id: "claude",
-    name: "Claude Code",
-    status: "installed",
-    version: "verified",
-    binaryPath: "/usr/local/bin/claude",
-    resourcePaths: ["~/.claude/skills", ".claude/skills", "CLAUDE.md"],
-    commandStatus: "valid",
-  },
-  {
-    id: "codex",
-    name: "Codex",
-    status: "installed",
-    version: "verified",
-    binaryPath: "/opt/homebrew/bin/codex",
-    resourcePaths: ["~/.codex/skills", ".codex/skills", ".agents/skills", "AGENTS.md"],
-    commandStatus: "valid",
-  },
-  {
-    id: "opencode",
-    name: "OpenCode",
-    status: "unknown",
-    version: "unknown",
-    binaryPath: "Not verified",
-    resourcePaths: ["~/.config/opencode/skills", ".opencode/skills", ".agents/skills"],
-    commandStatus: "unknown",
-  },
-];
-
-export const skills: Skill[] = [
-  {
-    id: "fetch-context",
-    name: "Fetch_External_Context",
-    description: "Retrieves JSON data from secure REST endpoints with OAuth2.",
-    scope: "global",
-    agentTarget: "Fleet-Universal",
-    location: "~/.codex/skills/fetch-context",
-    status: "valid",
-  },
-  {
-    id: "rag-sync",
-    name: "Local_RAG_Sync",
-    description: "Synchronizes local vector storage with cloud instances.",
-    scope: "project",
-    agentTarget: "Data-Specialist-01",
-    location: ".agents/skills/local-rag-sync",
-    status: "warning",
-  },
-  {
-    id: "auto-python",
-    name: "Auto_Py_Executor",
-    description: "Legacy Python 2.7 runtime for deprecated scripts.",
-    scope: "global",
-    agentTarget: "Archivist-Beta",
-    location: "~/.claude/skills/auto-py-executor",
-    status: "invalid",
-  },
-  {
-    id: "token-validator",
-    name: "Token_Validator",
-    description: "Ensures session tokens meet compliance standards.",
-    scope: "project",
-    agentTarget: "Security-Proxy",
-    location: ".codex/skills/token-validator",
-    status: "valid",
-  },
-];
-
-export const instructions: InstructionFile[] = [
-  {
-    id: "system-prompt",
-    name: "system_prompt_v2.md",
-    path: "/core/instructions/system_prompt_v2.md",
-    scope: "global",
-    agentTarget: "Codex",
-    lastModified: "Oct 24, 2023 - 14:15:02",
-    status: "valid",
-    content:
-      "# System Prompt v2\n## Core Directive\nYou are an autonomous agent manager tasked with optimizing throughput of multi-node execution chains.\n\n### Guidelines\n1. Maintain high-fidelity telemetry across all sub-agents.\n2. Ensure latency remains below 150ms for instruction parsing.\n3. Implement error recovery loops on terminal signal failures.\n\n```json\n{\n  \"agent_id\": \"manager-primary\",\n  \"version\": \"1.0.4\",\n  \"status\": \"ready\"\n}\n```",
-  },
-  {
-    id: "safety",
-    name: "safety_alignment.md",
-    path: "/core/instructions/safety_alignment.md",
-    scope: "global",
-    agentTarget: "Claude Code",
-    lastModified: "Oct 22, 2023 - 09:44:18",
-    status: "warning",
-    content: "# Safety Alignment\n\nResource access must stay local-first and explicit.",
-  },
-];
-
-export const memoryFiles: MemoryFile[] = [
-  {
-    id: "codex-memory",
-    name: "MEMORY.md",
-    path: "~/.codex/memories/MEMORY.md",
-    scope: "global",
-    agentTarget: "Codex",
-    size: "128 KB",
-    lastModified: "Today",
-    status: "valid",
-  },
-  {
-    id: "project-memory",
-    name: "project-memory.md",
-    path: ".agents/memory/project-memory.md",
-    scope: "project",
-    agentTarget: "Shared",
-    size: "18 KB",
-    lastModified: "Yesterday",
-    status: "unknown",
-  },
-];
-
-export const warnings: Warning[] = [
-  {
-    id: "memory-leak",
-    severity: "critical",
-    resource: "Lead_Agent_01",
-    reason: "High heap usage detected in Lead_Agent_01.",
-    suggestedFix: "Run memory scan and inspect active prompt buffers.",
-    time: "14:22:01",
-  },
-  {
-    id: "latency-spike",
+    id: "desktop-api",
     severity: "warning",
-    resource: "External_Worker_3",
-    reason: "Latency exceeded 450ms on skill validation.",
-    suggestedFix: "Re-route validation to local command runner.",
-    time: "14:19:44",
+    resource: "Desktop API",
+    reason: "Some sections are still moving from sample data to real scans.",
+    suggestedFix: "Use Projects and Agents for the functional flows in this pass.",
+    time: "local",
   },
 ];
 
-export const terminalLines: TerminalLine[] = [
-  { id: "1", level: "INFO", time: "14:30:12", message: "Heartbeat signal confirmed from 3/3 active nodes." },
-  { id: "2", level: "INFO", time: "14:30:15", message: "Instruction set #28 successfully injected into Lead_Agent_01." },
-  { id: "3", level: "ERR", time: "14:31:02", message: "Buffer overflow on #node_77x2. Triggering circuit breaker." },
-  { id: "4", level: "WARN", time: "14:31:05", message: "Resource re-allocation in progress for Analytic_Bot." },
-  { id: "5", level: "EXEC", time: "14:32:00", message: "Scanning sub-networks for instruction updates..." },
-];
+export const warnings = $state<Warning[]>([...baseWarnings]);
+
+export let terminalLines = $state<TerminalLine[]>([
+  { id: "1", level: "INFO", time: "local", message: "Agent Manager ready." },
+  { id: "2", level: "EXEC", time: "local", message: "Projects and agent detection route through the desktop bridge." },
+]);
 
 const scanSummary: ScanSummary = $state({
-  status: "complete",
-  selectedProjectId: "agent-manager",
-  lastScanTime: "Just now",
-  resourceCount: 78,
-  detectedAgentsCount: 3,
-  warningCount: 2,
+  status: "idle",
+  selectedProjectId: null,
+  lastScanTime: "Never",
+  resourceCount: 0,
+  detectedAgentsCount: 0,
+  warningCount: warnings.length,
 });
 
-let currentPage = $state<PageId>("dashboard");
-let selectedProjectId = $state("agent-manager");
+let currentPage = $state<PageId>("projects");
+let selectedProjectId = $state<string | null>(null);
+let selectedAgentId = $state<string | null>(null);
+let selectedSkillId = $state<string | null>(null);
+let selectedInstructionId = $state<string | null>(null);
 let selectedResourceId = $state("fetch-context");
 let detailsOpen = $state(true);
 let terminalOpen = $state(true);
 let terminalHeight = $state(184);
+let initialized = false;
 
 export function getCurrentPage() {
   return currentPage;
@@ -217,13 +69,58 @@ export function getScanSummary() {
   return scanSummary;
 }
 
-export function getSelectedProject() {
-  return projects.find((project) => project.id === selectedProjectId) ?? projects[0];
+export function getProjects() {
+  return projects;
 }
 
-export function setSelectedProject(id: string) {
-  selectedProjectId = id;
-  scanSummary.selectedProjectId = id;
+export function getSkills() {
+  return skills;
+}
+
+export function getSelectedSkill() {
+  return skills.find((skill) => skill.id === selectedSkillId) ?? null;
+}
+
+export function setSelectedSkill(id: string | null) {
+  selectedSkillId = skills.some((skill) => skill.id === id) ? id : skills[0]?.id ?? null;
+}
+
+export function getInstructions() {
+  return instructions;
+}
+
+export function getSelectedInstruction() {
+  return instructions.find((instruction) => instruction.id === selectedInstructionId) ?? null;
+}
+
+export function setSelectedInstruction(id: string | null) {
+  selectedInstructionId = instructions.some((instruction) => instruction.id === id) ? id : instructions[0]?.id ?? null;
+}
+
+export function getSelectedProject() {
+  return projects.find((project) => project.id === selectedProjectId) ?? null;
+}
+
+export function getSelectedProjectId() {
+  return selectedProjectId;
+}
+
+export function setSelectedProject(id: string | null) {
+  selectedProjectId = projects.some((project) => project.id === id) ? id : projects[0]?.id ?? null;
+  scanSummary.selectedProjectId = selectedProjectId;
+  void persistAppState();
+}
+
+export function getAgents() {
+  return agents;
+}
+
+export function getSelectedAgent() {
+  return agents.find((agent) => agent.id === selectedAgentId) ?? null;
+}
+
+export function setSelectedAgent(id: string | null) {
+  selectedAgentId = agents.some((agent) => agent.id === id) ? id : agents[0]?.id ?? null;
 }
 
 export function getSelectedResourceId() {
@@ -256,4 +153,202 @@ export function getTerminalHeight() {
 
 export function setTerminalHeight(height: number) {
   terminalHeight = Math.min(320, Math.max(120, height));
+}
+
+export function appendTerminalLines(nextLines: TerminalLine[]) {
+  terminalLines.push(...nextLines);
+}
+
+export function clearTerminalLines() {
+  terminalLines.splice(0, terminalLines.length);
+}
+
+export async function initializeAppState() {
+  if (initialized) {
+    return;
+  }
+
+  initialized = true;
+
+  const state = await desktopApi.loadAppState();
+
+  replaceProjects((state?.projects ?? []).map(fromPersistedProject));
+  setSelectedProject(resolveSelectedProjectId(state));
+  await Promise.all([refreshProjects(), refreshAgentDetection()]);
+}
+
+export async function addProject(path: string) {
+  const normalizedPath = path.trim().replace(/\/$/, "");
+
+  if (!normalizedPath) {
+    return false;
+  }
+
+  const existing = projects.find((project) => project.path === normalizedPath);
+
+  if (existing) {
+    setSelectedProject(existing.id);
+    return true;
+  }
+
+  scanSummary.status = "scanning";
+
+  const snapshot = await desktopApi.scanProject(normalizedPath);
+  const project = snapshot.projects[0] ?? createFallbackProject(normalizedPath);
+
+  projects.push(project);
+  setSelectedProject(project.id);
+  replaceSkills([...skills, ...snapshot.skills]);
+  replaceInstructions([...instructions, ...snapshot.instructions]);
+  replaceWarnings([...warnings, ...snapshot.warnings]);
+  appendTerminalLines(snapshot.logs);
+  syncProjectSummary();
+  scanSummary.status = "complete";
+  await persistAppState();
+
+  return true;
+}
+
+export async function refreshProjects() {
+  if (projects.length === 0) {
+    selectedProjectId = null;
+    scanSummary.status = "idle";
+    scanSummary.lastScanTime = "Never";
+    scanSummary.resourceCount = 0;
+    scanSummary.selectedProjectId = null;
+    replaceSkills([]);
+    replaceInstructions([]);
+    replaceWarnings([...baseWarnings]);
+    syncProjectSummary();
+    return;
+  }
+
+  scanSummary.status = "scanning";
+
+  const snapshots = await Promise.all(projects.map((project) => desktopApi.scanProject(project.path)));
+  const nextProjects = snapshots.map((snapshot, index) => snapshot.projects[0] ?? projects[index]);
+
+  replaceProjects(nextProjects);
+  replaceSkills(snapshots.flatMap((snapshot) => snapshot.skills));
+  replaceInstructions(snapshots.flatMap((snapshot) => snapshot.instructions));
+  replaceWarnings([...baseWarnings, ...snapshots.flatMap((snapshot) => snapshot.warnings)]);
+  appendTerminalLines(snapshots.flatMap((snapshot) => snapshot.logs));
+  syncProjectSummary();
+  scanSummary.status = "complete";
+  await persistAppState();
+}
+
+export async function refreshAgentDetection() {
+  const detected = await desktopApi.detectAgents();
+  replaceAgents(detected);
+}
+
+export async function runAgentCommandChecks() {
+  const checked = await desktopApi.checkAgentCommands();
+  replaceAgents(checked);
+}
+
+function replaceProjects(nextProjects: Project[]) {
+  projects.splice(0, projects.length, ...nextProjects);
+
+  if (!projects.some((project) => project.id === selectedProjectId)) {
+    selectedProjectId = projects[0]?.id ?? null;
+  }
+
+  scanSummary.selectedProjectId = selectedProjectId;
+  syncProjectSummary();
+}
+
+function replaceAgents(nextAgents: Agent[]) {
+  agents.splice(0, agents.length, ...nextAgents);
+
+  if (!agents.some((agent) => agent.id === selectedAgentId)) {
+    selectedAgentId = agents[0]?.id ?? null;
+  }
+
+  scanSummary.detectedAgentsCount = agents.filter((agent) => agent.status === "installed").length;
+}
+
+function replaceSkills(nextSkills: Skill[]) {
+  skills.splice(0, skills.length, ...nextSkills);
+
+  if (!skills.some((skill) => skill.id === selectedSkillId)) {
+    selectedSkillId = skills[0]?.id ?? null;
+  }
+}
+
+function replaceInstructions(nextInstructions: InstructionFile[]) {
+  instructions.splice(0, instructions.length, ...nextInstructions);
+
+  if (!instructions.some((instruction) => instruction.id === selectedInstructionId)) {
+    selectedInstructionId = instructions[0]?.id ?? null;
+  }
+}
+
+function replaceWarnings(nextWarnings: Warning[]) {
+  warnings.splice(0, warnings.length, ...nextWarnings);
+}
+
+function syncProjectSummary() {
+  const selectedProject = getSelectedProject();
+
+  scanSummary.selectedProjectId = selectedProject?.id ?? null;
+  scanSummary.lastScanTime = selectedProject?.lastScanned ?? "Never";
+  scanSummary.resourceCount = skills.length + instructions.length;
+  scanSummary.warningCount = warnings.length;
+}
+
+function resolveSelectedProjectId(state: PersistedAppState | null) {
+  if (!state?.selectedProjectId) {
+    return projects[0]?.id ?? null;
+  }
+
+  return projects.some((project) => project.id === state.selectedProjectId) ? state.selectedProjectId : projects[0]?.id ?? null;
+}
+
+function fromPersistedProject(project: PersistedProject): Project {
+  return {
+    id: project.id,
+    name: project.name,
+    path: project.path,
+    environment: "local",
+    lastScanned: project.lastScanned,
+    agentCount: 0,
+    skillCount: 0,
+    instructionCount: 0,
+    warningCount: 0,
+  };
+}
+
+function toPersistedProject(project: Project): PersistedProject {
+  return {
+    id: project.id,
+    name: project.name,
+    path: project.path,
+    lastScanned: project.lastScanned,
+  };
+}
+
+async function persistAppState() {
+  await desktopApi.saveAppState({
+    version: 1,
+    selectedProjectId,
+    projects: projects.map(toPersistedProject),
+  });
+}
+
+function createFallbackProject(path: string): Project {
+  const name = path.split("/").filter(Boolean).at(-1) ?? path;
+
+  return {
+    id: path.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase(),
+    name,
+    path,
+    environment: "local",
+    lastScanned: new Date().toLocaleString("sv-SE").replace("T", " "),
+    agentCount: 0,
+    skillCount: 0,
+    instructionCount: 0,
+    warningCount: 0,
+  };
 }

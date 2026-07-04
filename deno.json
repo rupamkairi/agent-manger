@@ -2,16 +2,16 @@
   "tasks": {
     "vite:dev": "vite",
     "dev": "deno task dev:desktop",
-    "dev:desktop": "vite build && deno desktop --hmr .",
+    "dev:desktop": "vite build && deno desktop --allow-read=./dist --include dist --hmr src/desktop/desktop.ts",
     "build": "vite build",
-    "build:desktop": "vite build && deno desktop --output ./dist/AIResourceManager.app .",
+    "build:desktop": "vite build && deno desktop --allow-read=./dist --include dist --output ./dist/AIResourceManager.app src/desktop/desktop.ts",
     "fmt": "deno fmt",
     "lint": "deno lint"
   },
   "desktop": {
     "app": {
-      "name": "AI Resource Manager",
-      "identifier": "com.rupamkairi.ai-resource-manager"
+      "name": "Agent Manager",
+      "identifier": "dev.rupamkairi.agent-manager"
     },
     "backend": "webview",
     "output": {

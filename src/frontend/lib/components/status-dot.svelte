@@ -20,4 +20,4 @@
   };
 </script>
 
-<span class={`inline-block size-2 rounded-full ${colorByStatus[status] ?? "bg-outline"}`}></span>
+<span class={`inline-block size-1.5 rounded-full ${colorByStatus[status] ?? "bg-outline"}`}></span>

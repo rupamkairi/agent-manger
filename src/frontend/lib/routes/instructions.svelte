@@ -1,10 +1,63 @@
 <script lang="ts">
-  import CodeEditorShell from "$lib/components/code-editor-shell.svelte";
-  import FileExplorer from "$lib/components/file-explorer.svelte";
-  import { instructions } from "$lib/stores/app-state.svelte";
+  import { RefreshCw } from "@lucide/svelte";
+  import CommandBar from "$lib/components/command-bar.svelte";
+  import DataTable from "$lib/components/data-table.svelte";
+  import EmptyState from "$lib/components/empty-state.svelte";
+  import PageHeader from "$lib/components/page-header.svelte";
+  import ResourceTabs from "$lib/components/resource-tabs.svelte";
+  import { getInstructions, getSelectedInstruction, refreshProjects, setSelectedInstruction } from "$lib/stores/app-state.svelte";
+
+  let activeTab = $state("All");
+
+  function filteredInstructions() {
+    if (activeTab === "Valid") {
+      return getInstructions().filter((instruction) => instruction.status === "valid");
+    }
+
+    if (activeTab === "Needs Fix") {
+      return getInstructions().filter((instruction) => instruction.status !== "valid");
+    }
+
+    return getInstructions();
+  }
+
+  function rows() {
+    return filteredInstructions().map((instruction) => ({
+      _id: instruction.id,
+      name: `<span class="font-semibold">${instruction.name}</span>`,
+      scope: `<span class="text-code uppercase">${instruction.scope}</span>`,
+      target: `<span class="text-code uppercase">${instruction.agentTarget}</span>`,
+      modified: `<span class="text-code">${instruction.lastModified}</span>`,
+      status: `<span class="text-code uppercase">${instruction.status}</span>`,
+      path: `<span class="break-all text-code">${instruction.path}</span>`,
+    }));
+  }
 </script>
 
-<div class="-m-6 flex h-[calc(100%+3rem)] min-h-[720px] overflow-hidden">
-  <FileExplorer selected={instructions[0].name} />
-  <CodeEditorShell content={instructions[0].content} />
+<PageHeader title="Instructions" description="Detected AGENTS / CLAUDE / OpenCode instruction files." >
+  <CommandBar actions={[{ label: "Rescan Projects", icon: RefreshCw, onClick: () => refreshProjects() }]} />
+</PageHeader>
+
+<div class="space-y-5">
+  <ResourceTabs tabs={["All", "Valid", "Needs Fix"]} bind:active={activeTab} onChange={(tab) => activeTab = tab} />
+
+  {#if getInstructions().length === 0}
+    <EmptyState title="No instructions detected" description="Add instruction files to a project and rescan to populate the inventory." />
+  {:else if rows().length === 0}
+    <EmptyState title={`No ${activeTab.toLowerCase()} instructions`} description="Switch tabs or rescan projects." />
+  {:else}
+    <DataTable
+      columns={[
+        { key: "name", label: "Instruction", width: "18%" },
+        { key: "scope", label: "Scope", width: "12%" },
+        { key: "target", label: "Target", width: "12%" },
+        { key: "modified", label: "Modified", width: "16%" },
+        { key: "status", label: "Status", width: "10%" },
+        { key: "path", label: "Path" },
+      ]}
+      rows={rows()}
+      selectedRowId={getSelectedInstruction()?.id ?? null}
+      onRowClick={(rowId) => setSelectedInstruction(rowId)}
+    />
+  {/if}
 </div>

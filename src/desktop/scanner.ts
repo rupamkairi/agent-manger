@@ -76,6 +76,16 @@ export function validateSkillManifest(content: string): SkillManifestValidation 
   return { status: "valid", issues };
 }
 
+export function extractSkillDescription(content: string) {
+  const explicit = content.match(/^\s*description\s*:\s*(.+)\s*$/im)?.[1]?.trim();
+
+  if (explicit) {
+    return explicit;
+  }
+
+  return content.match(/^#\s+(.+)$/m)?.[1]?.trim() ?? "";
+}
+
 export async function pathExists(path: string): Promise<boolean> {
   try {
     await Deno.stat(path);

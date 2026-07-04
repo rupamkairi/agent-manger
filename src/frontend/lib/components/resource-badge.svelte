@@ -1,14 +1,6 @@
 <script lang="ts">
   import type { ResourceScope, Severity, ValidationStatus } from "../../../shared/types/resource";
 
-  let {
-    label,
-    tone = "neutral",
-  }: {
-    label: string;
-    tone?: ResourceScope | Severity | ValidationStatus | "primary" | "neutral";
-  } = $props();
-
   const toneClass: Record<string, string> = {
     global: "border-info/40 bg-info/10 text-info",
     project: "border-warning/40 bg-warning/10 text-warning",
@@ -21,8 +13,16 @@
     neutral: "border-outline-variant bg-surface-highest text-on-surface-variant",
     unknown: "border-outline-variant bg-surface-high text-on-surface-variant",
   };
+
+  let {
+    label,
+    tone = "neutral",
+  }: {
+    label: string;
+    tone?: ResourceScope | Severity | ValidationStatus | "primary" | "neutral";
+  } = $props();
 </script>
 
-<span class={`inline-flex h-6 items-center rounded border px-2 text-path uppercase ${toneClass[tone] ?? toneClass.neutral}`}>
+<span class={`inline-flex h-5 items-center rounded border px-1.5 text-path uppercase ${toneClass[tone] ?? toneClass.neutral}`}>
   {label}
 </span>
