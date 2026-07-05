@@ -1,16 +1,30 @@
-import type { DesktopApi, DesktopSnapshot } from "../../../shared/types/desktop-api";
+import type { DesktopApi, DesktopSnapshot } from "../../../shared/types/desktop-api.ts";
 import type {
   PersistedAppState,
   Project,
-  TerminalCommandResult,
+  TerminalChunk,
   TerminalLine,
   Warning,
-} from "../../../shared/types/resource";
+} from "../../../shared/types/resource.ts";
 
-declare global {
-  interface Window {
-    agentManager?: DesktopApi;
+type DesktopBindings = Partial<Record<keyof DesktopApi, (...args: unknown[]) => unknown>>;
+
+function getBindings() {
+  return (globalThis as typeof globalThis & { bindings?: DesktopBindings }).bindings ?? null;
+}
+
+function getBrowserBridge() {
+  return globalThis as typeof globalThis & { agentManager?: DesktopApi; localStorage?: Storage };
+}
+
+function invokeBinding(name: keyof DesktopApi, ...args: unknown[]) {
+  const binding = getBindings()?.[name];
+
+  if (!binding) {
+    return null;
   }
+
+  return binding(...args);
 }
 
 const fallbackWarnings: Warning[] = [
@@ -28,49 +42,110 @@ const fallbackLogs: TerminalLine[] = [
   { id: "desktop-bridge", level: "WARN", time: "local", message: "Desktop bridge unavailable." },
 ];
 
-function fallbackTerminalResult(command: string, cwd?: string): TerminalCommandResult {
-  return {
-    command,
-    cwd: cwd?.trim() ? cwd : null,
-    shell: "bash",
-    exitCode: 127,
-    stdout: "",
-    stderr: "Desktop bridge unavailable.",
-  };
-}
-
 export const desktopApi: DesktopApi = {
   detectAgents() {
-    return window.agentManager?.detectAgents() ?? Promise.resolve([]);
+    const bound = invokeBinding("detectAgents");
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["detectAgents"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.detectAgents() ?? Promise.resolve([]);
   },
 
   checkAgentCommands() {
-    return window.agentManager?.checkAgentCommands() ?? Promise.resolve([]);
+    const bound = invokeBinding("checkAgentCommands");
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["checkAgentCommands"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.checkAgentCommands() ?? Promise.resolve([]);
   },
 
   scanProject(path: string) {
-    return window.agentManager?.scanProject(path) ?? Promise.resolve(fallbackSnapshot(path));
+    const bound = invokeBinding("scanProject", path);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["scanProject"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.scanProject(path) ?? Promise.resolve(fallbackSnapshot(path));
+  },
+
+  scanGlobalSkills(home?: string) {
+    const bound = invokeBinding("scanGlobalSkills", home);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["scanGlobalSkills"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.scanGlobalSkills(home) ?? Promise.resolve({
+      projects: [],
+      agents: [],
+      skills: [],
+      instructions: [],
+      memoryFiles: [],
+      warnings: fallbackWarnings,
+      logs: [
+        ...fallbackLogs,
+        {
+          id: "fallback-global-skills",
+          level: "WARN",
+          time: "local",
+          message: "Global skill scan unavailable.",
+        },
+      ],
+    });
   },
 
   scanAllProjects(paths: string[]) {
-    return window.agentManager?.scanAllProjects(paths) ?? Promise.resolve(fallbackSnapshot(paths.join(", ")));
+    const bound = invokeBinding("scanAllProjects", paths);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["scanAllProjects"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.scanAllProjects(paths) ?? Promise.resolve(fallbackSnapshot(paths.join(", ")));
   },
 
   pickProjectFolder() {
-    return window.agentManager?.pickProjectFolder() ?? Promise.resolve(null);
+    const bound = invokeBinding("pickProjectFolder");
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["pickProjectFolder"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.pickProjectFolder() ?? Promise.resolve(null);
   },
 
   loadAppState() {
-    if (window.agentManager?.loadAppState) {
-      return window.agentManager.loadAppState();
+    const bound = invokeBinding("loadAppState");
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["loadAppState"]>>>;
+    }
+
+    const browserBridge = getBrowserBridge().agentManager;
+
+    if (browserBridge?.loadAppState) {
+      return browserBridge.loadAppState();
     }
 
     return Promise.resolve(loadBrowserState());
   },
 
-  saveAppState(state) {
-    if (window.agentManager?.saveAppState) {
-      return window.agentManager.saveAppState(state);
+  saveAppState(state: PersistedAppState) {
+    const bound = invokeBinding("saveAppState", state);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["saveAppState"]>>>;
+    }
+
+    const browserBridge = getBrowserBridge().agentManager;
+
+    if (browserBridge?.saveAppState) {
+      return browserBridge.saveAppState(state);
     }
 
     saveBrowserState(state);
@@ -78,23 +153,63 @@ export const desktopApi: DesktopApi = {
   },
 
   openPath(path: string) {
-    return window.agentManager?.openPath(path) ?? Promise.resolve();
+    const bound = invokeBinding("openPath", path);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["openPath"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.openPath(path) ?? Promise.resolve();
   },
 
-  openTerminal(path: string) {
-    return window.agentManager?.openTerminal(path) ?? Promise.resolve();
+  terminalEnsureStarted() {
+    const bound = invokeBinding("terminalEnsureStarted");
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["terminalEnsureStarted"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.terminalEnsureStarted() ?? Promise.resolve();
   },
 
-  runShellCommand(command: string, cwd?: string) {
-    return window.agentManager?.runShellCommand(command, cwd) ?? Promise.resolve(fallbackTerminalResult(command, cwd));
+  terminalRead(afterSeq: number) {
+    const bound = invokeBinding("terminalRead", afterSeq);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["terminalRead"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.terminalRead(afterSeq) ?? Promise.resolve([] satisfies TerminalChunk[]);
+  },
+
+  terminalWrite(data: string) {
+    const bound = invokeBinding("terminalWrite", data);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["terminalWrite"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.terminalWrite(data) ?? Promise.resolve();
   },
 
   readTextFile(path: string) {
-    return window.agentManager?.readTextFile(path) ?? Promise.resolve(`# ${path}\n\nDesktop bridge unavailable.`);
+    const bound = invokeBinding("readTextFile", path);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["readTextFile"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.readTextFile(path) ?? Promise.resolve(`# ${path}\n\nDesktop bridge unavailable.`);
   },
 
   writeTextFile(path: string, content: string) {
-    return window.agentManager?.writeTextFile(path, content) ?? Promise.resolve();
+    const bound = invokeBinding("writeTextFile", path, content);
+
+    if (bound) {
+      return bound as Promise<Awaited<ReturnType<DesktopApi["writeTextFile"]>>>;
+    }
+
+    return getBrowserBridge().agentManager?.writeTextFile(path, content) ?? Promise.resolve();
   },
 };
 
@@ -131,7 +246,13 @@ function fallbackSnapshot(path: string): DesktopSnapshot {
 }
 
 function loadBrowserState(): PersistedAppState | null {
-  const content = window.localStorage.getItem("agent-manager-state");
+  const storage = getBrowserBridge().localStorage;
+
+  if (!storage) {
+    return null;
+  }
+
+  const content = storage.getItem("agent-manager-state");
 
   if (!content) {
     return null;
@@ -145,5 +266,5 @@ function loadBrowserState(): PersistedAppState | null {
 }
 
 function saveBrowserState(state: PersistedAppState) {
-  window.localStorage.setItem("agent-manager-state", JSON.stringify(state));
+  getBrowserBridge().localStorage?.setItem("agent-manager-state", JSON.stringify(state));
 }

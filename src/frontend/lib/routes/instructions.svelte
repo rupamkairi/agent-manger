@@ -5,20 +5,26 @@
   import EmptyState from "$lib/components/empty-state.svelte";
   import PageHeader from "$lib/components/page-header.svelte";
   import ResourceTabs from "$lib/components/resource-tabs.svelte";
-  import { getInstructions, getSelectedInstruction, refreshProjects, setSelectedInstruction } from "$lib/stores/app-state.svelte";
+  import {
+    instructions,
+    refreshProjects,
+    setSelectedInstruction,
+    uiState,
+  } from "$lib/stores/app-state.svelte";
 
   let activeTab = $state("All");
+  const selectedInstruction = $derived(instructions.find((instruction) => instruction.id === uiState.selectedInstructionId) ?? null);
 
   function filteredInstructions() {
     if (activeTab === "Valid") {
-      return getInstructions().filter((instruction) => instruction.status === "valid");
+      return instructions.filter((instruction) => instruction.status === "valid");
     }
 
     if (activeTab === "Needs Fix") {
-      return getInstructions().filter((instruction) => instruction.status !== "valid");
+      return instructions.filter((instruction) => instruction.status !== "valid");
     }
 
-    return getInstructions();
+    return instructions;
   }
 
   function rows() {
@@ -41,7 +47,7 @@
 <div class="space-y-5">
   <ResourceTabs tabs={["All", "Valid", "Needs Fix"]} bind:active={activeTab} onChange={(tab) => activeTab = tab} />
 
-  {#if getInstructions().length === 0}
+  {#if instructions.length === 0}
     <EmptyState title="No instructions detected" description="Add instruction files to a project and rescan to populate the inventory." />
   {:else if rows().length === 0}
     <EmptyState title={`No ${activeTab.toLowerCase()} instructions`} description="Switch tabs or rescan projects." />
@@ -56,7 +62,7 @@
         { key: "path", label: "Path" },
       ]}
       rows={rows()}
-      selectedRowId={getSelectedInstruction()?.id ?? null}
+      selectedRowId={selectedInstruction?.id ?? null}
       onRowClick={(rowId) => setSelectedInstruction(rowId)}
     />
   {/if}

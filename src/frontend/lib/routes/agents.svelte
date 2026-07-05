@@ -5,20 +5,27 @@
   import EmptyState from "$lib/components/empty-state.svelte";
   import PageHeader from "$lib/components/page-header.svelte";
   import ResourceTabs from "$lib/components/resource-tabs.svelte";
-  import { getAgents, getSelectedAgent, refreshAgentDetection, runAgentCommandChecks, setSelectedAgent } from "$lib/stores/app-state.svelte";
+  import {
+    agents,
+    refreshAgentDetection,
+    runAgentCommandChecks,
+    setSelectedAgent,
+    uiState,
+  } from "$lib/stores/app-state.svelte";
 
   let activeTab = $state("Installed");
+  const selectedAgent = $derived(agents.find((agent) => agent.id === uiState.selectedAgentId) ?? null);
 
   function filteredAgents() {
     if (activeTab === "Installed") {
-      return getAgents().filter((agent) => agent.status === "installed");
+      return agents.filter((agent) => agent.status === "installed");
     }
 
     if (activeTab === "Missing") {
-      return getAgents().filter((agent) => agent.status !== "installed");
+      return agents.filter((agent) => agent.status !== "installed");
     }
 
-    return getAgents();
+    return agents;
   }
 
   function rows() {
@@ -31,6 +38,21 @@
       command: `<span class="text-code uppercase">${agent.commandStatus}</span>`,
     }));
   }
+
+  $effect(() => {
+    const visibleAgents = filteredAgents();
+
+    if (visibleAgents.length === 0) {
+      if (selectedAgent !== null) {
+        setSelectedAgent(null);
+      }
+      return;
+    }
+
+    if (!selectedAgent || !visibleAgents.some((agent) => agent.id === selectedAgent.id)) {
+      setSelectedAgent(visibleAgents[0].id);
+    }
+  });
 </script>
 
 <PageHeader title="Agent Detection" description="Detect local coding agents, refresh installed state, and validate command availability.">
@@ -43,7 +65,7 @@
 <div class="space-y-5">
   <ResourceTabs tabs={["Installed", "Missing", "All"]} bind:active={activeTab} onChange={(tab) => activeTab = tab} />
 
-  {#if getAgents().length === 0}
+  {#if agents.length === 0}
     <EmptyState title="No agent data yet" description="Run detection to populate the local agent inventory." />
   {:else if rows().length === 0}
     <EmptyState title={`No ${activeTab.toLowerCase()} agents`} description="Switch tabs or rerun detection." />
@@ -57,7 +79,7 @@
         { key: "command", label: "Command", width: "16%" },
       ]}
       rows={rows()}
-      selectedRowId={getSelectedAgent()?.id ?? null}
+      selectedRowId={selectedAgent?.id ?? null}
       onRowClick={(rowId) => setSelectedAgent(rowId)}
     />
   {/if}

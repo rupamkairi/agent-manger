@@ -1,4 +1,5 @@
-import type { Agent, AgentId, AgentStatus, ValidationStatus } from "../shared/types/resource.ts";
+import type { Agent, AgentId, ValidationStatus } from "../shared/types/resource.ts";
+import { resolveHomeDirectory } from "./runtime-env.ts";
 
 export type CommandResult = {
   code: number;
@@ -16,50 +17,12 @@ type AgentDefinition = {
   resourcePaths: (home: string) => string[];
 };
 
-const AGENT_DEFINITIONS: AgentDefinition[] = [
-  {
-    id: "claude",
-    name: "Claude Code",
-    command: "claude",
-    resourcePaths: (home) => [`${home}/.claude/skills`],
-  },
-  {
-    id: "codex",
-    name: "Codex",
-    command: "codex",
-    resourcePaths: (home) => [`${home}/.codex/skills`, `${home}/.codex/memories`],
-  },
-  {
-    id: "opencode",
-    name: "OpenCode",
-    command: "opencode",
-    resourcePaths: (home) => [`${home}/.config/opencode/skills`],
-  },
-];
-
 export async function detectAgents(
   run: CommandRunner = runCommand,
   pathExists: PathExists = defaultPathExists,
   home = Deno.env.get("HOME") ?? "",
 ): Promise<Agent[]> {
-  return Promise.all(
-    AGENT_DEFINITIONS.map(async (definition) => {
-      const lookup = await run("which", [definition.command]);
-      const binaryPath = lookup.code === 0 ? lookup.stdout.trim() : "Not found";
-      const status: AgentStatus = lookup.code === 0 ? "installed" : "missing";
-      const resourcePaths = await getExistingResourcePaths(definition, home, pathExists);
-
-      return {
-        id: definition.id,
-        name: definition.name,
-        status,
-        version: status === "installed" ? "installed" : "unknown",
-        binaryPath,
-        resourcePaths,
-        commandStatus: status === "installed" ? "valid" : "invalid",
-      };
-    }),
-  );
+  return probeAgents(run, pathExists, home.trim() || await resolveHomeDirectory(run));
 }
 
 export async function checkAgentCommands(
@@ -67,39 +30,62 @@ export async function checkAgentCommands(
   pathExists: PathExists = defaultPathExists,
   home = Deno.env.get("HOME") ?? "",
 ): Promise<Agent[]> {
-  return Promise.all(
-    AGENT_DEFINITIONS.map(async (definition) => {
-      const lookup = await run("which", [definition.command]);
+  return probeAgents(run, pathExists, home.trim() || await resolveHomeDirectory(run));
+}
 
-      if (lookup.code !== 0) {
-        return {
-          id: definition.id,
-          name: definition.name,
-          status: "missing",
-          version: "unknown",
-          binaryPath: "Not found",
-          resourcePaths: await getExistingResourcePaths(definition, home, pathExists),
-          commandStatus: "invalid",
-        } satisfies Agent;
-      }
+function getAgentDefinitions(): AgentDefinition[] {
+  return [
+    {
+      id: "claude",
+      name: "Claude Code",
+      command: "claude",
+      resourcePaths: (home) => [`${home}/.claude/skills`],
+    },
+    {
+      id: "codex",
+      name: "Codex",
+      command: "codex",
+      resourcePaths: (home) => [`${home}/.codex/skills`, `${home}/.codex/memories`],
+    },
+    {
+      id: "opencode",
+      name: "OpenCode",
+      command: "opencode",
+      resourcePaths: (home) => [`${home}/.config/opencode/skills`],
+    },
+  ];
+}
 
-      const binaryPath = lookup.stdout.trim();
-      const versionLookup = await run(binaryPath, ["--version"]);
-      const version = versionLookup.code === 0
-        ? firstLine(versionLookup.stdout) ?? "installed"
-        : "installed";
+async function probeAgents(run: CommandRunner, pathExists: PathExists, home: string) {
+  return Promise.all(getAgentDefinitions().map((definition) => probeAgent(definition, run, pathExists, home)));
+}
 
-      return {
-        id: definition.id,
-        name: definition.name,
-        status: "installed",
-        version,
-        binaryPath,
-        resourcePaths: await getExistingResourcePaths(definition, home, pathExists),
-        commandStatus: resolveCommandStatus(binaryPath, version),
-      } satisfies Agent;
-    }),
-  );
+async function probeAgent(definition: AgentDefinition, run: CommandRunner, pathExists: PathExists, home: string) {
+  const lookup = await run("command", ["-v", definition.command]);
+  const installed = lookup.code === 0;
+  const binaryPath = installed ? lookup.stdout.trim() : "Not found";
+  const version = installed ? await probeVersion(binaryPath, run) : "unknown";
+  const resourcePaths = await getExistingResourcePaths(definition, home, pathExists);
+
+  return {
+    id: definition.id,
+    name: definition.name,
+    status: installed ? "installed" : "missing",
+    version,
+    binaryPath,
+    resourcePaths,
+    commandStatus: resolveCommandStatus(binaryPath, version),
+  } satisfies Agent;
+}
+
+async function probeVersion(binaryPath: string, run: CommandRunner) {
+  const versionLookup = await run(binaryPath, ["--version"]);
+
+  if (versionLookup.code !== 0) {
+    return "unknown";
+  }
+
+  return firstLine(versionLookup.stdout) ?? "unknown";
 }
 
 async function getExistingResourcePaths(definition: AgentDefinition, home: string, pathExists: PathExists) {
@@ -132,13 +118,26 @@ function firstLine(value: string) {
 }
 
 async function runCommand(command: string, args: string[]): Promise<CommandResult> {
-  const output = await new Deno.Command(command, { args }).output();
+  const shellCommand = buildShellCommand(command, args);
+  const output = await new Deno.Command("bash", { args: ["-lc", shellCommand] }).output();
 
   return {
     code: output.code,
     stdout: new TextDecoder().decode(output.stdout),
     stderr: new TextDecoder().decode(output.stderr),
   };
+}
+
+export function buildShellCommand(command: string, args: string[]) {
+  return [shellToken(command), ...args.map(shellToken)].join(" ");
+}
+
+function shellToken(value: string) {
+  if (/^[A-Za-z0-9_@%+=:,./-]+$/.test(value)) {
+    return value;
+  }
+
+  return `'${value.replaceAll("'", `'\"'\"'`)}'`;
 }
 
 async function defaultPathExists(path: string) {

@@ -3,15 +3,21 @@ import type {
   InstructionFile,
   MemoryFile,
   PageId,
-  PersistedAppState,
-  PersistedProject,
   Project,
   ScanSummary,
   Skill,
-  TerminalLine,
   Warning,
 } from "../../../shared/types/resource";
 import { desktopApi } from "$lib/services/desktop-api";
+import {
+  buildDuplicateSkillWarnings,
+  findProjectById,
+  filterSkillsForTab,
+  normalizeSkillInventory,
+  resolveSelectedSkillId,
+  restoreProjects,
+  toPersistedProject,
+} from "./app-state-helpers";
 
 export const projects = $state<Project[]>([]);
 export const agents = $state<Agent[]>([]);
@@ -32,12 +38,7 @@ const baseWarnings: Warning[] = [
 
 export const warnings = $state<Warning[]>([...baseWarnings]);
 
-export let terminalLines = $state<TerminalLine[]>([
-  { id: "1", level: "INFO", time: "local", message: "Agent Manager ready." },
-  { id: "2", level: "EXEC", time: "local", message: "Projects and agent detection route through the desktop bridge." },
-]);
-
-const scanSummary: ScanSummary = $state({
+export const scanSummary: ScanSummary = $state({
   status: "idle",
   selectedProjectId: null,
   lastScanTime: "Never",
@@ -46,23 +47,24 @@ const scanSummary: ScanSummary = $state({
   warningCount: warnings.length,
 });
 
-let currentPage = $state<PageId>("projects");
-let selectedProjectId = $state<string | null>(null);
-let selectedAgentId = $state<string | null>(null);
-let selectedSkillId = $state<string | null>(null);
-let selectedInstructionId = $state<string | null>(null);
-let selectedResourceId = $state("fetch-context");
-let detailsOpen = $state(true);
-let terminalOpen = $state(true);
-let terminalHeight = $state(184);
+export const uiState = $state({
+  currentPage: "projects" as PageId,
+  selectedProjectId: null as string | null,
+  selectedAgentId: null as string | null,
+  selectedSkillId: null as string | null,
+  selectedInstructionId: null as string | null,
+  selectedResourceId: "fetch-context",
+  detailsOpen: true,
+  terminalOpen: false,
+});
 let initialized = false;
 
 export function getCurrentPage() {
-  return currentPage;
+  return uiState.currentPage;
 }
 
 export function setCurrentPage(page: PageId) {
-  currentPage = page;
+  uiState.currentPage = page;
 }
 
 export function getScanSummary() {
@@ -77,12 +79,25 @@ export function getSkills() {
   return skills;
 }
 
+export function getGlobalSkills() {
+  return filterSkillsForTab(skills, "Global", uiState.selectedProjectId);
+}
+
+export function getSelectedProjectSkills() {
+  return filterSkillsForTab(skills, "Project", uiState.selectedProjectId);
+}
+
 export function getSelectedSkill() {
-  return skills.find((skill) => skill.id === selectedSkillId) ?? null;
+  return skills.find((skill) => skill.id === uiState.selectedSkillId) ?? null;
 }
 
 export function setSelectedSkill(id: string | null) {
-  selectedSkillId = skills.some((skill) => skill.id === id) ? id : skills[0]?.id ?? null;
+  if (id === null) {
+    uiState.selectedSkillId = null;
+    return;
+  }
+
+  uiState.selectedSkillId = skills.some((skill) => skill.id === id) ? id : skills[0]?.id ?? null;
 }
 
 export function getInstructions() {
@@ -90,24 +105,24 @@ export function getInstructions() {
 }
 
 export function getSelectedInstruction() {
-  return instructions.find((instruction) => instruction.id === selectedInstructionId) ?? null;
+  return instructions.find((instruction) => instruction.id === uiState.selectedInstructionId) ?? null;
 }
 
 export function setSelectedInstruction(id: string | null) {
-  selectedInstructionId = instructions.some((instruction) => instruction.id === id) ? id : instructions[0]?.id ?? null;
+  uiState.selectedInstructionId = instructions.some((instruction) => instruction.id === id) ? id : instructions[0]?.id ?? null;
 }
 
 export function getSelectedProject() {
-  return projects.find((project) => project.id === selectedProjectId) ?? null;
+  return findProjectById(projects, uiState.selectedProjectId);
 }
 
 export function getSelectedProjectId() {
-  return selectedProjectId;
+  return uiState.selectedProjectId;
 }
 
 export function setSelectedProject(id: string | null) {
-  selectedProjectId = projects.some((project) => project.id === id) ? id : projects[0]?.id ?? null;
-  scanSummary.selectedProjectId = selectedProjectId;
+  uiState.selectedProjectId = projects.some((project) => project.id === id) ? id : projects[0]?.id ?? null;
+  scanSummary.selectedProjectId = uiState.selectedProjectId;
   void persistAppState();
 }
 
@@ -116,51 +131,40 @@ export function getAgents() {
 }
 
 export function getSelectedAgent() {
-  return agents.find((agent) => agent.id === selectedAgentId) ?? null;
+  return agents.find((agent) => agent.id === uiState.selectedAgentId) ?? null;
 }
 
 export function setSelectedAgent(id: string | null) {
-  selectedAgentId = agents.some((agent) => agent.id === id) ? id : agents[0]?.id ?? null;
+  if (id === null) {
+    uiState.selectedAgentId = null;
+    return;
+  }
+
+  uiState.selectedAgentId = agents.some((agent) => agent.id === id) ? id : agents[0]?.id ?? null;
 }
 
 export function getSelectedResourceId() {
-  return selectedResourceId;
+  return uiState.selectedResourceId;
 }
 
 export function setSelectedResource(id: string) {
-  selectedResourceId = id;
+  uiState.selectedResourceId = id;
 }
 
 export function getDetailsOpen() {
-  return detailsOpen;
+  return uiState.detailsOpen;
 }
 
 export function toggleDetails() {
-  detailsOpen = !detailsOpen;
+  uiState.detailsOpen = !uiState.detailsOpen;
 }
 
 export function getTerminalOpen() {
-  return terminalOpen;
+  return uiState.terminalOpen;
 }
 
 export function toggleTerminal() {
-  terminalOpen = !terminalOpen;
-}
-
-export function getTerminalHeight() {
-  return terminalHeight;
-}
-
-export function setTerminalHeight(height: number) {
-  terminalHeight = Math.min(320, Math.max(120, height));
-}
-
-export function appendTerminalLines(nextLines: TerminalLine[]) {
-  terminalLines.push(...nextLines);
-}
-
-export function clearTerminalLines() {
-  terminalLines.splice(0, terminalLines.length);
+  uiState.terminalOpen = !uiState.terminalOpen;
 }
 
 export async function initializeAppState() {
@@ -171,10 +175,13 @@ export async function initializeAppState() {
   initialized = true;
 
   const state = await desktopApi.loadAppState();
+  const restored = restoreProjects(state);
 
-  replaceProjects((state?.projects ?? []).map(fromPersistedProject));
-  setSelectedProject(resolveSelectedProjectId(state));
-  await Promise.all([refreshProjects(), refreshAgentDetection()]);
+  replaceProjects(restored.projects);
+  setSelectedProject(restored.selectedProjectId);
+  scanSummary.status = "idle";
+  await refreshAgentDetection();
+  await refreshProjects();
 }
 
 export async function addProject(path: string) {
@@ -191,48 +198,37 @@ export async function addProject(path: string) {
     return true;
   }
 
-  scanSummary.status = "scanning";
-
-  const snapshot = await desktopApi.scanProject(normalizedPath);
-  const project = snapshot.projects[0] ?? createFallbackProject(normalizedPath);
-
-  projects.push(project);
-  setSelectedProject(project.id);
-  replaceSkills([...skills, ...snapshot.skills]);
-  replaceInstructions([...instructions, ...snapshot.instructions]);
-  replaceWarnings([...warnings, ...snapshot.warnings]);
-  appendTerminalLines(snapshot.logs);
-  syncProjectSummary();
-  scanSummary.status = "complete";
-  await persistAppState();
+  projects.push(createFallbackProject(normalizedPath));
+  setSelectedProject(projects.at(-1)?.id ?? null);
+  await refreshProjects();
 
   return true;
 }
 
 export async function refreshProjects() {
-  if (projects.length === 0) {
-    selectedProjectId = null;
-    scanSummary.status = "idle";
-    scanSummary.lastScanTime = "Never";
-    scanSummary.resourceCount = 0;
-    scanSummary.selectedProjectId = null;
-    replaceSkills([]);
-    replaceInstructions([]);
-    replaceWarnings([...baseWarnings]);
-    syncProjectSummary();
-    return;
-  }
-
   scanSummary.status = "scanning";
 
-  const snapshots = await Promise.all(projects.map((project) => desktopApi.scanProject(project.path)));
-  const nextProjects = snapshots.map((snapshot, index) => snapshot.projects[0] ?? projects[index]);
+  const [globalSnapshot, ...projectSnapshots] = await Promise.all([
+    desktopApi.scanGlobalSkills(),
+    ...projects.map((project) => desktopApi.scanProject(project.path)),
+  ]);
+  const nextProjects = projectSnapshots.map((snapshot, index) => snapshot.projects[0] ?? projects[index]);
+  const nextSkills = normalizeSkillInventory([
+    ...globalSnapshot.skills,
+    ...projectSnapshots.flatMap((snapshot) => snapshot.skills),
+  ]);
+  const nextInstructions = projectSnapshots.flatMap((snapshot) => snapshot.instructions);
+  const nextWarnings = [
+    ...baseWarnings,
+    ...globalSnapshot.warnings,
+    ...projectSnapshots.flatMap((snapshot) => snapshot.warnings),
+    ...buildDuplicateSkillWarnings(nextSkills),
+  ];
 
   replaceProjects(nextProjects);
-  replaceSkills(snapshots.flatMap((snapshot) => snapshot.skills));
-  replaceInstructions(snapshots.flatMap((snapshot) => snapshot.instructions));
-  replaceWarnings([...baseWarnings, ...snapshots.flatMap((snapshot) => snapshot.warnings)]);
-  appendTerminalLines(snapshots.flatMap((snapshot) => snapshot.logs));
+  replaceSkills(nextSkills);
+  replaceInstructions(nextInstructions);
+  replaceWarnings(nextWarnings);
   syncProjectSummary();
   scanSummary.status = "complete";
   await persistAppState();
@@ -251,19 +247,19 @@ export async function runAgentCommandChecks() {
 function replaceProjects(nextProjects: Project[]) {
   projects.splice(0, projects.length, ...nextProjects);
 
-  if (!projects.some((project) => project.id === selectedProjectId)) {
-    selectedProjectId = projects[0]?.id ?? null;
+  if (!projects.some((project) => project.id === uiState.selectedProjectId)) {
+    uiState.selectedProjectId = projects[0]?.id ?? null;
   }
 
-  scanSummary.selectedProjectId = selectedProjectId;
+  scanSummary.selectedProjectId = uiState.selectedProjectId;
   syncProjectSummary();
 }
 
 function replaceAgents(nextAgents: Agent[]) {
   agents.splice(0, agents.length, ...nextAgents);
 
-  if (!agents.some((agent) => agent.id === selectedAgentId)) {
-    selectedAgentId = agents[0]?.id ?? null;
+  if (!agents.some((agent) => agent.id === uiState.selectedAgentId)) {
+    uiState.selectedAgentId = agents[0]?.id ?? null;
   }
 
   scanSummary.detectedAgentsCount = agents.filter((agent) => agent.status === "installed").length;
@@ -271,17 +267,14 @@ function replaceAgents(nextAgents: Agent[]) {
 
 function replaceSkills(nextSkills: Skill[]) {
   skills.splice(0, skills.length, ...nextSkills);
-
-  if (!skills.some((skill) => skill.id === selectedSkillId)) {
-    selectedSkillId = skills[0]?.id ?? null;
-  }
+  uiState.selectedSkillId = resolveSelectedSkillId(skills, uiState.selectedSkillId);
 }
 
 function replaceInstructions(nextInstructions: InstructionFile[]) {
   instructions.splice(0, instructions.length, ...nextInstructions);
 
-  if (!instructions.some((instruction) => instruction.id === selectedInstructionId)) {
-    selectedInstructionId = instructions[0]?.id ?? null;
+  if (!instructions.some((instruction) => instruction.id === uiState.selectedInstructionId)) {
+    uiState.selectedInstructionId = instructions[0]?.id ?? null;
   }
 }
 
@@ -298,41 +291,10 @@ function syncProjectSummary() {
   scanSummary.warningCount = warnings.length;
 }
 
-function resolveSelectedProjectId(state: PersistedAppState | null) {
-  if (!state?.selectedProjectId) {
-    return projects[0]?.id ?? null;
-  }
-
-  return projects.some((project) => project.id === state.selectedProjectId) ? state.selectedProjectId : projects[0]?.id ?? null;
-}
-
-function fromPersistedProject(project: PersistedProject): Project {
-  return {
-    id: project.id,
-    name: project.name,
-    path: project.path,
-    environment: "local",
-    lastScanned: project.lastScanned,
-    agentCount: 0,
-    skillCount: 0,
-    instructionCount: 0,
-    warningCount: 0,
-  };
-}
-
-function toPersistedProject(project: Project): PersistedProject {
-  return {
-    id: project.id,
-    name: project.name,
-    path: project.path,
-    lastScanned: project.lastScanned,
-  };
-}
-
 async function persistAppState() {
   await desktopApi.saveAppState({
     version: 1,
-    selectedProjectId,
+    selectedProjectId: uiState.selectedProjectId,
     projects: projects.map(toPersistedProject),
   });
 }

@@ -5,58 +5,73 @@
   import EmptyState from "$lib/components/empty-state.svelte";
   import PageHeader from "$lib/components/page-header.svelte";
   import ResourceTabs from "$lib/components/resource-tabs.svelte";
-  import { getSkills, getSelectedSkill, refreshProjects, setSelectedSkill } from "$lib/stores/app-state.svelte";
+  import {
+    refreshProjects,
+    setSelectedSkill,
+    skills,
+    uiState,
+    warnings,
+  } from "$lib/stores/app-state.svelte";
+  import { describeSkillsEmptyState, filterSkillsForTab, resolveSelectedSkillId, type SkillsTabId } from "$lib/stores/app-state-helpers";
 
-  let activeTab = $state("All");
+  const tabs = ["All", "Global", "Project", "Shared 🚧", "Invalid 🚧", "Duplicates 🚧"];
+  let activeTab = $state<SkillsTabId>("All");
 
-  function filteredSkills() {
-    if (activeTab === "Valid") {
-      return getSkills().filter((skill) => skill.status === "valid");
-    }
-
-    if (activeTab === "Needs Fix") {
-      return getSkills().filter((skill) => skill.status !== "valid");
-    }
-
-    return getSkills();
-  }
+  const filteredSkills = $derived(filterSkillsForTab(skills, activeTab, uiState.selectedProjectId));
+  const selectedSkill = $derived(filteredSkills.find((skill) => skill.id === uiState.selectedSkillId) ?? null);
+  const emptyState = $derived(describeSkillsEmptyState(skills, filteredSkills, activeTab, warnings));
 
   function rows() {
-    return filteredSkills().map((skill) => ({
+    return filteredSkills.map((skill) => ({
       _id: skill.id,
       name: `<span class="font-semibold">${skill.name}</span>`,
       description: `<span class="text-on-surface-variant">${skill.description}</span>`,
       scope: `<span class="text-code uppercase">${skill.scope}</span>`,
       agentTarget: `<span class="text-code uppercase">${skill.agentTarget}</span>`,
       location: `<span class="break-all text-code">${skill.location}</span>`,
+      duplicate: skill.duplicateName
+        ? `<span class="rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 text-path text-warning">DUP</span>`
+        : `<span class="text-on-surface-variant">-</span>`,
       status: `<span class="text-code uppercase">${skill.status}</span>`,
     }));
   }
+
+  $effect(() => {
+    const nextSelectedSkillId = resolveSelectedSkillId(filteredSkills, uiState.selectedSkillId);
+
+    if (nextSelectedSkillId !== uiState.selectedSkillId) {
+      setSelectedSkill(nextSelectedSkillId);
+    }
+  });
 </script>
 
-<PageHeader title="Skills" description="Scanned skill folders, manifest validation, and target scope." >
+<PageHeader title="Skills" description="Global, project, and shared skill folders from verified roots.">
   <CommandBar actions={[{ label: "Rescan Projects", icon: RefreshCw, onClick: () => refreshProjects() }]} />
 </PageHeader>
 
 <div class="space-y-5">
-  <ResourceTabs tabs={["All", "Valid", "Needs Fix"]} bind:active={activeTab} onChange={(tab) => activeTab = tab} />
+  <ResourceTabs
+    tabs={tabs}
+    active={activeTab}
+    disabledTabs={["Shared 🚧", "Invalid 🚧", "Duplicates 🚧"]}
+    onChange={(tab) => activeTab = tab as SkillsTabId}
+  />
 
-  {#if getSkills().length === 0}
-    <EmptyState title="No skills detected" description="Add a project with skill folders and rescan to populate the inventory." />
-  {:else if rows().length === 0}
-    <EmptyState title={`No ${activeTab.toLowerCase()} skills`} description="Switch tabs or rescan projects." />
+  {#if skills.length === 0 || rows().length === 0}
+    <EmptyState title={emptyState.title} description={emptyState.description} />
   {:else}
     <DataTable
       columns={[
         { key: "name", label: "Skill", width: "18%" },
-        { key: "description", label: "Description", width: "32%" },
+        { key: "description", label: "Description", width: "30%" },
         { key: "scope", label: "Scope", width: "12%" },
         { key: "agentTarget", label: "Target", width: "12%" },
-        { key: "location", label: "Location", width: "18%" },
+        { key: "location", label: "Location", width: "14%" },
+        { key: "duplicate", label: "Dup", width: "6%" },
         { key: "status", label: "Status", width: "8%" },
       ]}
       rows={rows()}
-      selectedRowId={getSelectedSkill()?.id ?? null}
+      selectedRowId={selectedSkill?.id ?? null}
       onRowClick={(rowId) => setSelectedSkill(rowId)}
     />
   {/if}

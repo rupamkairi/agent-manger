@@ -13,7 +13,7 @@
   } from "@lucide/svelte";
   import type { Component } from "svelte";
   import type { PageId } from "../../../shared/types/resource";
-  import { getCurrentPage, setCurrentPage } from "$lib/stores/app-state.svelte";
+  import { projects, setCurrentPage, setSelectedProject, uiState } from "$lib/stores/app-state.svelte";
 
   type NavItem = {
     id: PageId;
@@ -60,8 +60,8 @@
         <div class="px-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-outline">{group.label}</div>
         {#each group.items as item}
           <button
-            class={`flex h-9 w-full items-center gap-2.5 border-r-2 px-4 text-left text-sm font-semibold transition-all ${
-              getCurrentPage() === item.id
+              class={`flex h-9 w-full items-center gap-2.5 border-r-2 px-4 text-left text-sm font-semibold transition-all ${
+              uiState.currentPage === item.id
                 ? "border-primary bg-accent text-primary"
                 : "border-transparent text-on-surface-variant hover:bg-accent hover:text-on-surface"
             }`}
@@ -70,6 +70,26 @@
             <item.icon class="size-4" />
             {item.label}
           </button>
+          {#if item.id === "projects"}
+            <div class="px-4 pb-3 pt-2">
+              <label class="mb-1 block text-[10px] font-semibold uppercase tracking-[0.18em] text-outline" for="sidebar-project-select">Active Project</label>
+              <select
+                id="sidebar-project-select"
+                class="h-8 w-full rounded border border-outline-variant bg-background px-2 text-xs text-on-surface outline-none"
+                value={uiState.selectedProjectId ?? ""}
+                onchange={(event) => setSelectedProject((event.currentTarget as HTMLSelectElement).value)}
+                disabled={projects.length === 0}
+              >
+                {#if projects.length === 0}
+                  <option value="">No projects</option>
+                {:else}
+                  {#each projects as project}
+                    <option value={project.id}>{project.name}</option>
+                  {/each}
+                {/if}
+              </select>
+            </div>
+          {/if}
         {/each}
       </section>
     {/each}

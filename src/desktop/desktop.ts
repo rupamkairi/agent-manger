@@ -1,17 +1,17 @@
-import { desktopApi } from "./api.ts";
-
-void desktopApi;
+import { bindDesktopApi } from "./api.ts";
 
 const workspaceDistDir = `${Deno.cwd().replace(/\/$/, "")}/dist`;
 const embeddedDistDir = new URL("../../dist", import.meta.url).pathname;
 const distDir = await resolveDistDir();
 
 const win = new Deno.BrowserWindow({
-  title: "Agent Manager",
+  title: "agent-manager",
   width: 1200,
   height: 800,
   resizable: true,
 });
+
+bindDesktopApi(win);
 
 const server = Deno.serve({ hostname: "127.0.0.1", port: 0 }, async (req) => {
   const url = new URL(req.url);

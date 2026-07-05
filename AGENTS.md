@@ -30,10 +30,12 @@ Example -
 - Follow SOLID Principles.
 - Follow YAGNI.
 - Features that are marked WIP - must be disabled with "🚧" sign.
+- At the same time Multiple agents could be working on this Project & changing files. Sometime Multiple agent could be working on the same file, in those cases try not to create conflicts, remove other's work.
 
 ## Checks
 
-- Always assume dev command running, so never run dev command.
+- Always assume dev command running, so never run that.
 - Never run build, preview, check, lint, format. User will ask you to do these if needed.
+- Do not write tests & run them by default. If asked for some particular feature only then do so.
 - Never run git commit or git push by your own. User will ask you to if needed.
 - When User asked to commit, commit everything by default, User will define otherwise.

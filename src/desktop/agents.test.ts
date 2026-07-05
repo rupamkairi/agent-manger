@@ -1,4 +1,4 @@
-import { checkAgentCommands } from "./agents.ts";
+import { buildShellCommand, checkAgentCommands, detectAgents } from "./agents.ts";
 
 function assertEquals<T>(actual: T, expected: T) {
   if (actual !== expected) {
@@ -6,29 +6,36 @@ function assertEquals<T>(actual: T, expected: T) {
   }
 }
 
-Deno.test("checkAgentCommands marks installed agent when binary and version exist", async () => {
-  const agents = await checkAgentCommands(async (command, args) => {
-    if (command === "which" && args[0] === "claude") {
-      return { code: 0, stdout: "/usr/local/bin/claude\n", stderr: "" };
-    }
+Deno.test("detectAgents reports installed agents with real version text and resource paths", async () => {
+  const agents = await detectAgents(
+    async (command, args) => {
+      if (command === "command" && args[0] === "-v" && args[1] === "codex") {
+        return { code: 0, stdout: "/usr/local/bin/codex\n", stderr: "" };
+      }
 
-    if (command === "/usr/local/bin/claude" && args[0] === "--version") {
-      return { code: 0, stdout: "claude 1.2.3\n", stderr: "" };
-    }
+      if (command === "/usr/local/bin/codex" && args[0] === "--version") {
+        return { code: 0, stdout: "codex 2.3.4\n", stderr: "" };
+      }
 
-    return { code: 1, stdout: "", stderr: "missing" };
-  }, async () => false, "/Users/tester");
+      return { code: 1, stdout: "", stderr: "missing" };
+    },
+    async (path) => path === "/Users/tester/.codex/skills" || path === "/Users/tester/.codex/memories",
+    "/Users/tester",
+  );
 
-  const claude = agents.find((agent) => agent.id === "claude");
+  const codex = agents.find((agent) => agent.id === "codex");
 
-  if (!claude) {
-    throw new Error("Expected Claude agent");
+  if (!codex) {
+    throw new Error("Expected Codex agent");
   }
 
-  assertEquals(claude.status, "installed");
-  assertEquals(claude.binaryPath, "/usr/local/bin/claude");
-  assertEquals(claude.version, "claude 1.2.3");
-  assertEquals(claude.commandStatus, "valid");
+  assertEquals(codex.status, "installed");
+  assertEquals(codex.binaryPath, "/usr/local/bin/codex");
+  assertEquals(codex.version, "codex 2.3.4");
+  assertEquals(codex.commandStatus, "valid");
+  assertEquals(codex.resourcePaths.length, 2);
+  assertEquals(codex.resourcePaths[0], "/Users/tester/.codex/skills");
+  assertEquals(codex.resourcePaths[1], "/Users/tester/.codex/memories");
 });
 
 Deno.test("checkAgentCommands marks missing agent when command is absent", async () => {
@@ -38,30 +45,34 @@ Deno.test("checkAgentCommands marks missing agent when command is absent", async
     stderr: "missing",
   }), async () => false, "/Users/tester");
 
-  const codex = agents.find((agent) => agent.id === "codex");
+  const claude = agents.find((agent) => agent.id === "claude");
 
-  if (!codex) {
-    throw new Error("Expected Codex agent");
+  if (!claude) {
+    throw new Error("Expected Claude agent");
   }
 
-  assertEquals(codex.status, "missing");
-  assertEquals(codex.binaryPath, "Not found");
-  assertEquals(codex.version, "unknown");
-  assertEquals(codex.commandStatus, "invalid");
+  assertEquals(claude.status, "missing");
+  assertEquals(claude.binaryPath, "Not found");
+  assertEquals(claude.version, "unknown");
+  assertEquals(claude.commandStatus, "invalid");
 });
 
-Deno.test("checkAgentCommands keeps installed state when version lookup fails", async () => {
-  const agents = await checkAgentCommands(async (command, args) => {
-    if (command === "which" && args[0] === "opencode") {
-      return { code: 0, stdout: "/opt/homebrew/bin/opencode\n", stderr: "" };
-    }
+Deno.test("checkAgentCommands keeps installed agents unknown when version lookup fails", async () => {
+  const agents = await checkAgentCommands(
+    async (command, args) => {
+      if (command === "command" && args[0] === "-v" && args[1] === "opencode") {
+        return { code: 0, stdout: "/opt/homebrew/bin/opencode\n", stderr: "" };
+      }
 
-    if (command === "/opt/homebrew/bin/opencode" && args[0] === "--version") {
-      return { code: 1, stdout: "", stderr: "unsupported" };
-    }
+      if (command === "/opt/homebrew/bin/opencode" && args[0] === "--version") {
+        return { code: 1, stdout: "", stderr: "unsupported" };
+      }
 
-    return { code: 1, stdout: "", stderr: "missing" };
-  }, async () => false, "/Users/tester");
+      return { code: 1, stdout: "", stderr: "missing" };
+    },
+    async () => false,
+    "/Users/tester",
+  );
 
   const opencode = agents.find((agent) => agent.id === "opencode");
 
@@ -71,6 +82,14 @@ Deno.test("checkAgentCommands keeps installed state when version lookup fails", 
 
   assertEquals(opencode.status, "installed");
   assertEquals(opencode.binaryPath, "/opt/homebrew/bin/opencode");
-  assertEquals(opencode.version, "installed");
-  assertEquals(opencode.commandStatus, "valid");
+  assertEquals(opencode.version, "unknown");
+  assertEquals(opencode.commandStatus, "warning");
+});
+
+Deno.test("buildShellCommand escapes shell tokens", () => {
+  assertEquals(buildShellCommand("command", ["-v", "codex"]), "command -v codex");
+  assertEquals(
+    buildShellCommand("/Applications/Claude Code/bin/claude", ["--version"]),
+    "'/Applications/Claude Code/bin/claude' --version",
+  );
 });

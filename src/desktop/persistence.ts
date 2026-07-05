@@ -1,16 +1,20 @@
 import type { PersistedAppState, PersistedProject } from "../shared/types/resource.ts";
+import { normalizeHomeDirectory } from "./runtime-env.ts";
 
 export const APP_STATE_VERSION = 1;
-const APP_SUPPORT_DIR = "Library/Application Support/com.rupamkairi.ai-resource-manager";
+const APP_SUPPORT_DIR = "Library/Application Support/com.rupamkairi.agent-manager";
+const PROJECTS_KEY = ["app", "projects"] as const;
+const SELECTED_PROJECT_ID_KEY = ["app", "selectedProjectId"] as const;
+const VERSION_KEY = ["app", "version"] as const;
 
-export function getAppStatePath(home = Deno.env.get("HOME") ?? "") {
-  return `${home.replace(/\/$/, "")}/${APP_SUPPORT_DIR}/state.json`;
+export function getAppDatabasePath(home = Deno.env.get("HOME") ?? "") {
+  const normalizedHome = normalizeHomeDirectory(home);
+  return `${normalizedHome}/${APP_SUPPORT_DIR}/agent-manager.sqlite`;
 }
 
-export async function loadAppStateFile(path = getAppStatePath()): Promise<PersistedAppState | null> {
+export async function loadAppStateFile(path = getAppDatabasePath()): Promise<PersistedAppState | null> {
   try {
-    const content = await Deno.readTextFile(path);
-    return parseAppState(content);
+    await Deno.stat(path);
   } catch (error) {
     if (error instanceof Deno.errors.NotFound) {
       return null;
@@ -18,43 +22,60 @@ export async function loadAppStateFile(path = getAppStatePath()): Promise<Persis
 
     throw error;
   }
+
+  const kv = await Deno.openKv(path);
+
+  try {
+    const [versionEntry, projectsEntry, selectedProjectEntry] = await Promise.all([
+      kv.get<number>(VERSION_KEY),
+      kv.get<unknown>(PROJECTS_KEY),
+      kv.get<unknown>(SELECTED_PROJECT_ID_KEY),
+    ]);
+
+    const projects = normalizePersistedProjects(projectsEntry.value);
+
+    if (projects.length === 0) {
+      return null;
+    }
+
+    const selectedProjectId = normalizeSelectedProjectId(selectedProjectEntry.value, projects);
+
+    return {
+      version: typeof versionEntry.value === "number" ? versionEntry.value : APP_STATE_VERSION,
+      selectedProjectId,
+      projects,
+    };
+  } finally {
+    kv.close();
+  }
 }
 
-export async function saveAppStateFile(path = getAppStatePath(), state: PersistedAppState): Promise<void> {
+export async function saveAppStateFile(path = getAppDatabasePath(), state: PersistedAppState): Promise<void> {
   const directory = path.slice(0, path.lastIndexOf("/"));
 
   await Deno.mkdir(directory, { recursive: true });
-  await Deno.writeTextFile(path, JSON.stringify(state, null, 2));
-}
 
-function parseAppState(content: string): PersistedAppState | null {
-  const trimmed = content.trim();
-
-  if (!trimmed) {
-    return null;
-  }
-
-  let parsed: { version?: unknown; selectedProjectId?: unknown; projects?: unknown[] };
+  const kv = await Deno.openKv(path);
 
   try {
-    parsed = JSON.parse(trimmed);
-  } catch {
-    return null;
+    await kv.atomic()
+      .set(VERSION_KEY, state.version)
+      .set(PROJECTS_KEY, state.projects.map(normalizePersistedProject).filter((project): project is PersistedProject => project !== null))
+      .set(SELECTED_PROJECT_ID_KEY, normalizeSelectedProjectId(state.selectedProjectId, state.projects))
+      .commit();
+  } finally {
+    kv.close();
+  }
+}
+
+function normalizePersistedProjects(projects: unknown): PersistedProject[] {
+  if (!Array.isArray(projects)) {
+    return [];
   }
 
-  if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.projects)) {
-    return null;
-  }
-
-  const projects = parsed.projects
+  return projects
     .map(normalizePersistedProject)
-    .filter((project: PersistedProject | null): project is PersistedProject => project !== null);
-
-  return {
-    version: typeof parsed.version === "number" ? parsed.version : APP_STATE_VERSION,
-    selectedProjectId: typeof parsed.selectedProjectId === "string" ? parsed.selectedProjectId : null,
-    projects,
-  };
+    .filter((project): project is PersistedProject => project !== null);
 }
 
 function normalizePersistedProject(project: unknown): PersistedProject | null {
@@ -79,4 +100,12 @@ function normalizePersistedProject(project: unknown): PersistedProject | null {
     path: candidate.path,
     lastScanned: candidate.lastScanned,
   };
+}
+
+function normalizeSelectedProjectId(selectedProjectId: unknown, projects: PersistedProject[]) {
+  if (typeof selectedProjectId !== "string") {
+    return null;
+  }
+
+  return projects.some((project) => project.id === selectedProjectId) ? selectedProjectId : projects[0]?.id ?? null;
 }

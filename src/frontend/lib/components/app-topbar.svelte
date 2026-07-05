@@ -5,7 +5,7 @@
 
 <header class="flex h-10 shrink-0 items-center justify-between border-b border-outline-variant bg-background px-4">
   <div class="flex h-full items-center gap-8">
-    <div class="text-sm font-semibold text-on-surface">Agent Manager</div>
+    <div class="text-sm font-semibold text-on-surface">agent-manager</div>
     <nav class="hidden h-full items-center gap-5 md:flex">
       {#each ["File", "Resources", "View", "Help"] as item}
         <button class="h-full border-b-2 border-transparent px-0.5 text-xs text-on-surface-variant hover:border-primary hover:text-on-surface">

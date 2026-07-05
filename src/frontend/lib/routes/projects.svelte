@@ -1,29 +1,18 @@
 <script lang="ts">
-  import { FolderOpen, Plus, RefreshCw } from "@lucide/svelte";
+  import { FolderOpen, Plus, RefreshCw, X } from "@lucide/svelte";
   import CommandBar from "$lib/components/command-bar.svelte";
-  import DataTable from "$lib/components/data-table.svelte";
   import EmptyState from "$lib/components/empty-state.svelte";
   import PageHeader from "$lib/components/page-header.svelte";
   import ResourceTabs from "$lib/components/resource-tabs.svelte";
   import WipState from "$lib/components/wip-state.svelte";
   import { desktopApi } from "$lib/services/desktop-api";
-  import { addProject, getProjects, getSelectedProjectId, refreshProjects, setSelectedProject } from "$lib/stores/app-state.svelte";
+  import { addProject, projects, refreshProjects, setSelectedProject, uiState } from "$lib/stores/app-state.svelte";
 
   let activeTab = $state("Overview");
   let addDialogOpen = $state(false);
   let projectPath = $state("");
   let addError = $state("");
   let addPending = $state(false);
-
-  function rows() {
-    return getProjects().map((project) => ({
-      _id: project.id,
-      name: `<span class="font-semibold text-on-surface">${project.name}</span>`,
-      scanned: project.lastScanned,
-      summary:
-        `<span class="mr-1.5 rounded border border-success/40 bg-success/10 px-1.5 py-0.5 text-path text-success">${project.agentCount} agents</span><span class="rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 text-path text-warning">${project.skillCount} skills</span>`,
-    }));
-  }
 
   function openAddDialog() {
     addDialogOpen = true;
@@ -76,7 +65,7 @@
   <ResourceTabs tabs={["Overview", "Resources 🚧", "Settings 🚧"]} bind:active={activeTab} onChange={(tab) => activeTab = tab} />
 
   {#if activeTab === "Overview"}
-    {#if getProjects().length === 0}
+    {#if projects.length === 0}
       <EmptyState title="No managed projects yet" description="Add any folder. It will stay persisted across app restarts.">
         {#snippet children()}
           <button class="inline-flex h-8 items-center gap-1.5 rounded border border-primary bg-primary px-2.5 text-xs font-medium text-primary-foreground" onclick={openAddDialog}>
@@ -86,16 +75,47 @@
         {/snippet}
       </EmptyState>
     {:else}
-      <DataTable
-        columns={[
-          { key: "name", label: "Project Name", width: "30%" },
-          { key: "scanned", label: "Last Scanned", width: "24%" },
-          { key: "summary", label: "Resource Summary" },
-        ]}
-        rows={rows()}
-        selectedRowId={getSelectedProjectId()}
-        onRowClick={(rowId) => setSelectedProject(rowId)}
-      />
+      <div class="overflow-hidden border border-outline-variant">
+        <table class="w-full border-collapse text-left">
+          <thead class="bg-surface-low text-label text-on-surface-variant">
+            <tr>
+              <th class="border-b border-outline-variant px-3 py-2.5 font-medium">Project Name</th>
+              <th class="border-b border-outline-variant px-3 py-2.5 font-medium">Last Scanned</th>
+              <th class="border-b border-outline-variant px-3 py-2.5 font-medium">Resource Summary</th>
+              <th class="border-b border-outline-variant px-3 py-2.5 font-medium">Select</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant">
+            {#each projects as project}
+              <tr
+                class={`cursor-pointer bg-background text-xs transition-colors ${uiState.selectedProjectId === project.id ? "bg-accent/70" : "hover:bg-surface-high"}`}
+                onclick={() => setSelectedProject(project.id)}
+              >
+                <td class="px-3 py-2.5 align-middle text-on-surface">
+                  <span class="font-semibold">{project.name}</span>
+                </td>
+                <td class="px-3 py-2.5 align-middle text-on-surface">{project.lastScanned}</td>
+                <td class="px-3 py-2.5 align-middle text-on-surface">
+                  <span class="mr-1.5 rounded border border-success/40 bg-success/10 px-1.5 py-0.5 text-path text-success">{project.agentCount} agents</span>
+                  <span class="rounded border border-warning/40 bg-warning/10 px-1.5 py-0.5 text-path text-warning">{project.skillCount} skills</span>
+                </td>
+                <td class="px-3 py-2.5 align-middle text-on-surface">
+                  <button
+                    class="inline-flex h-7 items-center rounded border border-outline-variant px-2.5 text-[11px] font-medium text-on-surface-variant hover:text-on-surface disabled:cursor-default disabled:opacity-50"
+                    onclick={(event) => {
+                      event.stopPropagation();
+                      setSelectedProject(project.id);
+                    }}
+                    disabled={uiState.selectedProjectId === project.id}
+                  >
+                    {uiState.selectedProjectId === project.id ? "Selected" : "Select"}
+                  </button>
+                </td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     {/if}
   {:else if activeTab === "Resources 🚧"}
     <WipState title="Project Resources WIP" description="Resource inventory per project is parked for a later pass." />
@@ -112,7 +132,9 @@
           <h2 class="text-base font-semibold text-on-surface">Add Project</h2>
           <p class="mt-1 text-xs text-on-surface-variant">Pick a folder if the desktop picker is available, or paste a path manually.</p>
         </div>
-        <button class="text-xs text-on-surface-variant hover:text-on-surface" onclick={() => addDialogOpen = false}>Close</button>
+        <button class="inline-flex size-8 items-center justify-center rounded border border-outline-variant text-on-surface-variant hover:text-on-surface" aria-label="Close add project dialog" onclick={() => addDialogOpen = false}>
+          <X class="size-4" />
+        </button>
       </div>
 
       <div class="mt-4 space-y-3">

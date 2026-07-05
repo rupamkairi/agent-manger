@@ -57,7 +57,9 @@ export interface Skill {
   scope: ResourceScope;
   agentTarget: string;
   location: string;
+  sourceProjectId: string | null;
   status: ValidationStatus;
+  duplicateName: boolean;
 }
 
 export interface InstructionFile {
@@ -85,6 +87,7 @@ export interface MemoryFile {
 export interface Warning {
   id: string;
   severity: Severity;
+  category?: string;
   resource: string;
   reason: string;
   suggestedFix: string;
@@ -107,13 +110,9 @@ export interface TerminalLine {
   message: string;
 }
 
-export interface TerminalCommandResult {
-  command: string;
-  cwd: string | null;
-  shell: "bash";
-  exitCode: number;
-  stdout: string;
-  stderr: string;
+export interface TerminalChunk {
+  seq: number;
+  data: string;
 }
 
 export interface ResourceCandidate {

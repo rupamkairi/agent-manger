@@ -1,140 +1,162 @@
 <script lang="ts">
-  import { Terminal, Trash2, X } from "@lucide/svelte";
-  import { tick } from "svelte";
+  import { Terminal, X } from "@lucide/svelte";
+  import { onMount } from "svelte";
+  import { FitAddon } from "xterm-addon-fit";
+  import { Terminal as XTerm } from "xterm";
+  import "xterm/css/xterm.css";
   import { desktopApi } from "$lib/services/desktop-api";
-  import { appendTerminalLines, clearTerminalLines, getSelectedProject, getTerminalHeight, terminalLines, toggleTerminal } from "$lib/stores/app-state.svelte";
+  import { toggleTerminal } from "$lib/stores/app-state.svelte";
 
-  const levelClass: Record<string, string> = {
-    INFO: "text-success",
-    WARN: "text-warning",
-    ERR: "text-danger",
-    EXEC: "text-primary",
-    OK: "text-success",
+  const terminalTheme = {
+    background: "#000000",
+    foreground: "#e1e2ec",
+    cursor: "#4edea3",
+    selectionBackground: "#32353c",
+    black: "#0b0e15",
+    red: "#ffb4ab",
+    green: "#4edea3",
+    yellow: "#ffb786",
+    blue: "#adc6ff",
+    magenta: "#d8b4fe",
+    cyan: "#6ffbbe",
+    white: "#e1e2ec",
+    brightBlack: "#424754",
+    brightRed: "#ffdad6",
+    brightGreen: "#6ffbbe",
+    brightYellow: "#ffdcc6",
+    brightBlue: "#d8e2ff",
+    brightMagenta: "#e9d5ff",
+    brightCyan: "#a7f3d0",
+    brightWhite: "#ffffff",
   };
 
-  let command = $state("");
-  let running = $state(false);
-  let outputEl: HTMLDivElement | null = null;
+  let terminalEl: HTMLDivElement | null = null;
+  let terminal: XTerm | null = null;
+  let fitAddon: FitAddon | null = null;
+  let observer: ResizeObserver | null = null;
+  let pollHandle: number | null = null;
+  let pollCursor = 0;
+  let syncing = false;
 
-  function splitLines(message: string, level: keyof typeof levelClass) {
-    return message
-      .split("\n")
-      .filter((line) => line.trim())
-      .map((line) => ({
-        id: crypto.randomUUID(),
-        level,
-        time: "local",
-        message: line,
-      }));
-  }
-
-  async function runCommand(event: SubmitEvent) {
-    event.preventDefault();
-
-    const nextCommand = command.trim();
-
-    if (!nextCommand || running) {
+  async function bootstrapTerminal() {
+    if (!terminalEl || terminal) {
       return;
     }
 
-    running = true;
-    const cwd = getSelectedProject()?.path ?? undefined;
+    terminal = new XTerm({
+      convertEol: true,
+      cursorBlink: true,
+      fontFamily: '"JetBrains Mono", monospace',
+      fontSize: 13,
+      scrollback: 5000,
+      theme: terminalTheme,
+    });
 
-    appendTerminalLines([
-      {
-        id: crypto.randomUUID(),
-        level: "EXEC",
-        time: "local",
-        message: `${cwd ?? "~"} $ ${nextCommand}`,
-      },
-    ]);
+    fitAddon = new FitAddon();
+    terminal.loadAddon(fitAddon);
+    terminal.open(terminalEl);
+    terminal.onData((data) => void desktopApi.terminalWrite(data));
 
-    try {
-      const result = await desktopApi.runShellCommand(nextCommand, cwd);
-      const outputLines = [
-        ...splitLines(result.stdout, "INFO"),
-        ...splitLines(result.stderr, "ERR"),
-        {
-          id: crypto.randomUUID(),
-          level: result.exitCode === 0 ? "OK" : "ERR",
-          time: "local",
-          message: `exit ${result.exitCode} via ${result.shell}`,
-        },
-      ];
+    observer = new ResizeObserver(() => {
+      if (!terminalEl?.clientHeight) {
+        return;
+      }
 
-      appendTerminalLines(outputLines);
-    } catch (error) {
-      appendTerminalLines([
-        {
-          id: crypto.randomUUID(),
-          level: "ERR",
-          time: "local",
-          message: error instanceof Error ? error.message : "Terminal command failed.",
-        },
-      ]);
-    } finally {
-      command = "";
-      running = false;
-      await tick();
-      outputEl?.scrollTo({ top: outputEl.scrollHeight });
+      fitAddon?.fit();
+      terminal?.focus();
+    });
+    observer.observe(terminalEl);
+
+    await desktopApi.terminalEnsureStarted();
+    await syncTerminal();
+
+    if (pollHandle === null) {
+      pollHandle = window.setInterval(() => {
+        void syncTerminal();
+      }, 75);
     }
   }
+
+  async function syncTerminal() {
+    if (syncing) {
+      return;
+    }
+
+    syncing = true;
+
+    try {
+      await desktopApi.terminalEnsureStarted();
+      const chunks = await desktopApi.terminalRead(pollCursor);
+
+      for (const chunk of chunks) {
+        pollCursor = Math.max(pollCursor, chunk.seq);
+        terminal?.write(chunk.data);
+      }
+
+      if (chunks.length > 0 && terminalEl?.clientHeight) {
+        fitAddon?.fit();
+        terminal?.focus();
+      }
+    } finally {
+      syncing = false;
+    }
+  }
+
+  function focusTerminal() {
+    terminal?.focus();
+  }
+
+  function handleTerminalKeydown(event: KeyboardEvent) {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    focusTerminal();
+  }
+
+  function closeTerminal() {
+    toggleTerminal();
+  }
+
+  onMount(() => {
+    void bootstrapTerminal();
+
+    return () => {
+      if (pollHandle !== null) {
+        window.clearInterval(pollHandle);
+        pollHandle = null;
+      }
+
+      observer?.disconnect();
+      observer = null;
+
+      terminal?.dispose();
+      terminal = null;
+      fitAddon = null;
+    };
+  });
 </script>
 
-<section class="flex shrink-0 flex-col border-t border-outline-variant bg-terminal" style:height={`${getTerminalHeight()}px`}>
+<section class="h-64 shrink-0 overflow-hidden border-t border-outline-variant bg-terminal">
   <div class="flex h-8 items-center justify-between border-b border-outline-variant bg-surface-container px-3">
     <div class="flex items-center gap-2 text-path text-on-surface-variant">
       <Terminal class="size-3.5" />
-      Integrated Terminal
+      Terminal
       <span class="text-success">bash</span>
-      <span class="text-outline">{getSelectedProject()?.path ?? "~"}</span>
     </div>
-    <div class="flex items-center gap-2 text-on-surface-variant">
-      <button class="inline-flex items-center gap-1 text-path uppercase hover:text-on-surface" type="button" onclick={clearTerminalLines}>
-        <Trash2 class="size-3.5" />
-        Clear
-      </button>
-      <button aria-label="Close terminal" type="button" onclick={toggleTerminal}>
-        <X class="size-3.5" />
-      </button>
-    </div>
+    <button aria-label="Close terminal" type="button" onclick={closeTerminal}>
+      <X class="size-3.5" />
+    </button>
   </div>
 
-  <div bind:this={outputEl} class="flex-1 overflow-auto px-4 py-3 text-code">
-    {#each terminalLines as line}
-      <div class="whitespace-pre-wrap leading-5">
-        <span class={levelClass[line.level]}>{line.level}</span>
-        <span class="mx-2 text-outline">[{line.time}]</span>
-        <span class="text-on-surface-variant">{line.message}</span>
-      </div>
-    {/each}
-    <div class="mt-2 text-on-surface">
-      <span class="text-on-surface-variant">bash&gt;</span> {command || " "}
-      {#if running}
-        <span class="ml-2 inline-block h-3.5 w-1.5 bg-primary align-middle"></span>
-      {/if}
-    </div>
-  </div>
-
-  <form class="border-t border-outline-variant bg-background/30 px-3 py-2" onsubmit={runCommand}>
-    <label class="sr-only" for="terminal-command">Terminal command</label>
-    <div class="flex items-center gap-2">
-      <span class="text-path text-on-surface-variant">bash&gt;</span>
-      <input
-        id="terminal-command"
-        class="h-8 min-w-0 flex-1 border border-outline-variant bg-transparent px-2 text-sm outline-none"
-        bind:value={command}
-        placeholder="pwd"
-        autocomplete="off"
-        spellcheck="false"
-      />
-      <button
-        class="h-8 rounded border border-primary bg-primary px-3 text-xs font-semibold text-primary-foreground disabled:opacity-50"
-        type="submit"
-        disabled={running || !command.trim()}
-      >
-        Run
-      </button>
-    </div>
-  </form>
+  <div
+    bind:this={terminalEl}
+    class="h-[calc(100%-2rem)] w-full"
+    role="button"
+    tabindex="0"
+    aria-label="Focus terminal"
+    onclick={focusTerminal}
+    onkeydown={handleTerminalKeydown}
+  ></div>
 </section>
