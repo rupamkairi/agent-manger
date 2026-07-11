@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@weave/shared": ["../shared/src"],
+      "@weave/server/app": ["../server/src/app.ts"],
+      "@weave/server/lockfile": ["../server/src/lib/lockfile.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"]
+}

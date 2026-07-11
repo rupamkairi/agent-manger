@@ -1,0 +1,32 @@
+{
+  "name": "@weave/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./app": "./src/app.ts",
+    "./lockfile": "./src/lib/lockfile.ts"
+  },
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.0",
+    "@weave/shared": "workspace:*",
+    "croner": "^10.0.1",
+    "fflate": "^0.8.3",
+    "nanotar": "^0.3.0",
+    "smol-toml": "^1.7.0",
+    "yaml": "^2.7.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "latest"
+  },
+  "optionalDependencies": {
+    "bun-pty": "^0.4.10",
+    "node-pty": "^1.1.0"
+  }
+}
