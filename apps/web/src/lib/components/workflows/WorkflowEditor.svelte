@@ -45,6 +45,11 @@
 	function getInitialDefinition() {
 		return initial;
 	}
+
+	function cloneInitialValue<T>(value: T): T {
+		return structuredClone($state.snapshot(value));
+	}
+
 	const seed = getInitialDefinition();
 	let id = $state(seed?.id ?? "");
 	let name = $state(seed?.name ?? "");
@@ -53,9 +58,9 @@
 	let version = $state(seed?.version ?? 1);
 	let defaultTimeoutMs = $state(seed?.defaultTimeoutMs ?? 600_000);
 	let failurePolicy = $state<WorkflowDefinition["failurePolicy"]>(seed?.failurePolicy ?? "stopOnFirstFailure");
-	let inputs = $state<WorkflowInput[]>(seed?.inputs ? structuredClone(seed.inputs) : []);
-	let steps = $state<WorkflowStep[]>(seed?.steps ? structuredClone(seed.steps) : [newStep(0)]);
-	let outputs = $state<Record<string, string>>(seed?.outputs ? structuredClone(seed.outputs) : {});
+	let inputs = $state<WorkflowInput[]>(seed?.inputs ? cloneInitialValue(seed.inputs) : []);
+	let steps = $state<WorkflowStep[]>(seed?.steps ? cloneInitialValue(seed.steps) : [newStep(0)]);
+	let outputs = $state<Record<string, string>>(seed?.outputs ? cloneInitialValue(seed.outputs) : {});
 	let error = $state<string | null>(null);
 
 	function slugify(value: string): string {

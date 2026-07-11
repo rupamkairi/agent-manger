@@ -23,11 +23,34 @@ export interface StepExecutionResult {
   stderrTruncated: boolean;
 }
 
-function argv(input: StepExecution): string[] {
+export function buildStepArgv(input: StepExecution): string[] {
   const binary = input.binaryPath ?? (input.agentId === "claude-code" ? "claude" : input.agentId);
   if (input.agentId === "claude-code") return [binary, "-p", input.prompt, "--output-format", "text"];
   if (input.agentId === "codex") return [binary, "exec", input.prompt];
-  return [binary, "run", input.prompt];
+  return [binary, "run", "--dir", input.cwd, input.prompt];
+}
+
+const COMPLETE_ANSI_SEQUENCE = /\x1b\[[0-?]*[ -/]*[@-~]/g;
+const INCOMPLETE_ANSI_SEQUENCE = /\x1b(?:\[[0-?]*[ -/]*)?$/;
+
+export class AnsiSanitizer {
+  private pending = "";
+
+  write(chunk: string): string {
+    let text = this.pending + chunk;
+    this.pending = "";
+    const trailingEscape = text.match(INCOMPLETE_ANSI_SEQUENCE);
+    if (trailingEscape?.index !== undefined) {
+      this.pending = trailingEscape[0];
+      text = text.slice(0, trailingEscape.index);
+    }
+    return text.replace(COMPLETE_ANSI_SEQUENCE, "");
+  }
+
+  end(): string {
+    this.pending = "";
+    return "";
+  }
 }
 
 async function consume(
@@ -35,20 +58,24 @@ async function consume(
   name: "stdout" | "stderr",
   jobId: string,
   logs: JobLogStore,
+  sanitizeAnsi: boolean,
 ): Promise<{ text: string; truncated: boolean }> {
   const decoder = new TextDecoder();
+  const sanitizer = sanitizeAnsi ? new AnsiSanitizer() : null;
   let result = "";
   let truncated = false;
   for await (const chunk of stream) {
-    const text = decoder.decode(chunk, { stream: true });
+    const decoded = decoder.decode(chunk, { stream: true });
+    const text = sanitizer?.write(decoded) ?? decoded;
     result += text;
     if (result.length > MAX_CAPTURE_CHARS) {
       result = result.slice(-MAX_CAPTURE_CHARS);
       truncated = true;
     }
-    await logs.append(jobId, name, text);
+    if (text) await logs.append(jobId, name, text);
   }
-  const tail = decoder.decode();
+  const decodedTail = decoder.decode();
+  const tail = sanitizer ? sanitizer.write(decodedTail) + sanitizer.end() : decodedTail;
   if (tail) { result += tail; await logs.append(jobId, name, tail); }
   return { text: result, truncated };
 }
@@ -59,7 +86,7 @@ export class StepExecutor {
   async execute(input: StepExecution): Promise<StepExecutionResult> {
     if (input.signal.aborted) throw new DOMException("Job cancelled", "AbortError");
     const detached = process.platform !== "win32";
-    const subprocess = Bun.spawn(argv(input), {
+    const subprocess = Bun.spawn(buildStepArgv(input), {
       cwd: input.cwd,
       stdout: "pipe",
       stderr: "pipe",
@@ -86,8 +113,9 @@ export class StepExecutor {
     const timeout = setTimeout(() => { timedOut = true; terminate(); }, input.timeoutMs);
     timeout.unref?.();
     try {
-      const stdoutPromise = consume(subprocess.stdout, "stdout", input.jobId, this.logs);
-      const stderrPromise = consume(subprocess.stderr, "stderr", input.jobId, this.logs);
+      const sanitizeAnsi = input.agentId === "opencode";
+      const stdoutPromise = consume(subprocess.stdout, "stdout", input.jobId, this.logs, sanitizeAnsi);
+      const stderrPromise = consume(subprocess.stderr, "stderr", input.jobId, this.logs, sanitizeAnsi);
       const [exitCode, stdout, stderr] = await Promise.all([subprocess.exited, stdoutPromise, stderrPromise]);
       if (input.signal.aborted) throw new DOMException("Job cancelled", "AbortError");
       return {
