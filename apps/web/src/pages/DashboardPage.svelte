@@ -138,6 +138,18 @@
 	</section>
 
 	<section class="flex flex-col gap-3">
+		<h2 class="section-heading">Quick Links</h2>
+		<Card>
+			<CardContent class="p-4">
+				<button class="flex items-center gap-2 text-sm" onclick={() => navigate("/coomer")}>
+					<span>Coomer</span>
+					<ArrowRightIcon class="size-4" />
+				</button>
+			</CardContent>
+		</Card>
+	</section>
+
+	<section class="flex flex-col gap-3">
 		<h2 class="section-heading">Agents</h2>
 		{#if agentsQuery.loading}
 			<div class="grid grid-cols-2 gap-4 md:grid-cols-3">

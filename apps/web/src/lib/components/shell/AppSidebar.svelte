@@ -16,6 +16,7 @@
   import WorkflowIcon from "@lucide/svelte/icons/workflow";
   import ListChecksIcon from "@lucide/svelte/icons/list-checks";
   import CalendarClockIcon from "@lucide/svelte/icons/calendar-clock";
+  import RadarIcon from "@lucide/svelte/icons/radar";
 
   const navItems = [
     { href: "/", label: "Dashboard", icon: LayoutDashboardIcon },
@@ -24,6 +25,7 @@
     { href: "/skills", label: "Skills", icon: SparklesIcon },
     { href: "/instructions", label: "Instructions", icon: FileTextIcon },
     { href: "/memory", label: "Memory", icon: BrainIcon },
+    { href: "/coomer", label: "Coomer", icon: RadarIcon },
     { href: "/configs", label: "Configs", icon: SettingsIcon },
     { href: "/health", label: "Health", icon: HeartPulseIcon },
     { href: "/terminal", label: "Terminal", icon: SquareTerminalIcon },

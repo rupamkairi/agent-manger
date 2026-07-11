@@ -23,6 +23,7 @@ export const routes: RouteDef[] = [
 	},
 	{ path: "/memory", title: "Memory", load: () => import("./pages/Memory.svelte") },
 	{ path: "/configs", title: "Configs", load: () => import("./pages/Configs.svelte") },
+	{ path: "/coomer", title: "Coomer", load: () => import("./pages/CoomerPage.svelte") },
 	{ path: "/health", title: "Health", load: () => import("./pages/HealthPage.svelte") },
 	{ path: "/terminal", title: "Terminal", load: () => import("./pages/TerminalPage.svelte") },
 	{ path: "/workflows", title: "Workflows", load: () => import("./pages/WorkflowsPage.svelte") },
