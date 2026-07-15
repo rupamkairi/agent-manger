@@ -1,6 +1,7 @@
 import { open } from "node:fs/promises";
 import type {
   AgentId,
+  SkillSourceId,
   ConfigResource,
   InstructionResource,
   MemoryResource,
@@ -45,7 +46,7 @@ interface SkillIssueRow {
 
 export interface ResourceFilters {
   scope?: Scope;
-  agentId?: AgentId;
+  agentId?: SkillSourceId;
   projectId?: string;
   status?: SkillStatus;
 }
@@ -73,7 +74,7 @@ async function rowToRecord(db: Db, row: ResourceRow): Promise<ResourceRecord> {
     symlinkBroken: Boolean(row.symlink_broken),
     scope: row.scope,
     projectId: row.project_id,
-    agentId: row.agent_id as AgentId,
+    agentId: row.agent_id as SkillSourceId,
     sizeBytes: row.size_bytes,
     mtime: row.mtime,
     lastScannedAt: row.last_scanned_at,
@@ -83,7 +84,12 @@ async function rowToRecord(db: Db, row: ResourceRow): Promise<ResourceRecord> {
     const skill = meta.skill as Skill;
     const issues = await getSkillIssues(db, row.id);
     const resolvedSkill: Skill = { ...skill, issues };
-    const record: SkillResource = { ...base, kind: "skill", skill: resolvedSkill };
+    const record: SkillResource = {
+      ...base,
+      kind: "skill",
+      skill: resolvedSkill,
+      linkedAgents: (meta.linkedAgents as SkillSourceId[] | undefined) ?? [],
+    };
     return record;
   }
 

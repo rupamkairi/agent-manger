@@ -18,6 +18,7 @@
 		row,
 		emptyTitle = "No results",
 		emptyDescription,
+		emptyAction,
 		skeletonRows = 5,
 	}: {
 		items: T[] | undefined;
@@ -27,6 +28,7 @@
 		row: Snippet<[T]>;
 		emptyTitle?: string;
 		emptyDescription?: string;
+		emptyAction?: Snippet;
 		skeletonRows?: number;
 	} = $props();
 </script>
@@ -58,7 +60,7 @@
 	</Table>
 	{#if !loading && (!items || items.length === 0)}
 		<div class="border-t p-3 sm:p-4">
-			<EmptyState title={emptyTitle} description={emptyDescription} />
+			<EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />
 		</div>
 	{/if}
 </div>

@@ -1,4 +1,4 @@
-<script lang="ts" generics="T extends { id: string; path: string; originalPath: string; isSymlink: boolean; symlinkBroken: boolean; scope: Scope; agentId: AgentId; sizeBytes: number | null; mtime: string | null; lastScannedAt: string }">
+<script lang="ts" generics="T extends { id: string; path: string; originalPath: string; isSymlink: boolean; symlinkBroken: boolean; scope: Scope; agentId: SkillSourceId; sizeBytes: number | null; mtime: string | null; lastScannedAt: string }">
 	import PageHeader from "$lib/components/shell/PageHeader.svelte";
 	import DataTable from "$lib/components/shared/DataTable.svelte";
 	import ContentPreview from "$lib/components/shared/ContentPreview.svelte";
@@ -34,7 +34,7 @@
 	import { getResourceContent } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
 	import type { EditorLanguage } from "$lib/editor/languages";
-	import type { Scope, AgentId, ResourceContent, FilePutResponse } from "@weave/shared";
+	import type { Scope, SkillSourceId, ResourceContent, FilePutResponse } from "@weave/shared";
 	import PlusIcon from "@lucide/svelte/icons/plus";
 
 	let {
@@ -274,7 +274,9 @@
 </div>
 
 <Sheet open={sheetOpen} onOpenChange={handleSheetOpenChange}>
-	<SheetContent class={sheetMode === "edit" ? "overflow-y-auto sm:max-w-2xl" : "overflow-y-auto"}>
+	<SheetContent
+	class="overflow-y-auto sm:min-w-[40rem] sm:max-w-5xl"
+>
 		{#if selected}
 			<SheetHeader>
 				<SheetTitle>{fileName(selected)}</SheetTitle>

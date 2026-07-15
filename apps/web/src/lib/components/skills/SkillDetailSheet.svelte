@@ -44,7 +44,7 @@
 </script>
 
 <Sheet.Root bind:open>
-	<Sheet.Content class="flex w-full flex-col gap-6 overflow-y-auto sm:max-w-lg">
+	<Sheet.Content class="flex w-full flex-col gap-6 overflow-y-auto sm:min-w-[40rem] sm:max-w-5xl">
 		{#if skill}
 			<Sheet.Header>
 				<Sheet.Title>{title}</Sheet.Title>

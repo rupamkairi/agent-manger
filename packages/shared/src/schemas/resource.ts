@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SCOPES } from "../constants";
-import { AgentIdSchema } from "./agent";
+import { SkillSourceIdSchema } from "./agent";
 import { SkillSchema } from "./skill";
 
 export const ScopeSchema = z.enum(SCOPES);
@@ -13,7 +13,7 @@ const resourceBase = {
   symlinkBroken: z.boolean(),
   scope: ScopeSchema,
   projectId: z.string().nullable(),
-  agentId: AgentIdSchema,
+  agentId: SkillSourceIdSchema,
   sizeBytes: z.number().nullable(),
   mtime: z.string().nullable(),
   lastScannedAt: z.string(),
@@ -23,6 +23,8 @@ export const SkillResourceSchema = z.object({
   ...resourceBase,
   kind: z.literal("skill"),
   skill: SkillSchema,
+  /** Agents this skill is configured for (via symlinked copies merged into this row). */
+  linkedAgents: z.array(SkillSourceIdSchema).default([]),
 });
 
 export const InstructionResourceSchema = z.object({

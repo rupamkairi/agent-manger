@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { AGENT_IDS } from "../constants";
+import { AGENT_IDS, SKILL_SOURCE_IDS } from "../constants";
 
 export const AgentIdSchema = z.enum(AGENT_IDS);
+export const SkillSourceIdSchema = z.enum(SKILL_SOURCE_IDS);
 
 export const DetectionStateSchema = z.enum(["installed", "missing", "unknown"]);
 export type DetectionState = z.infer<typeof DetectionStateSchema>;

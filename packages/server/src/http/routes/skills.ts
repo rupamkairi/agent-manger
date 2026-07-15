@@ -1,5 +1,5 @@
 import {
-  AgentIdSchema,
+  SkillSourceIdSchema,
   MultiTargetResponseSchema,
   ScopeSchema,
   SkillDeleteResponseSchema,
@@ -26,7 +26,7 @@ import type { RegisterRoutes } from "./types";
 
 const skillQuerySchema = z.object({
   scope: ScopeSchema.optional(),
-  agentId: AgentIdSchema.optional(),
+  agentId: SkillSourceIdSchema.optional(),
   projectId: z.string().optional(),
   status: SkillStatusSchema.optional(),
 });

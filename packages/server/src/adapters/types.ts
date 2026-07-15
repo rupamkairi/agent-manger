@@ -1,16 +1,25 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { AgentId } from "@weave/shared";
+import type { AgentId, SkillSourceId } from "@weave/shared";
 
-export interface AgentAdapter {
-  id: AgentId;
+/**
+ * Anything the scanner can discover skills for: an agent adapter or the
+ * agent-agnostic "shared" source. Declaring roots here is all that is needed —
+ * the scanner iterates sources from the registry.
+ */
+export interface SkillSource {
+  id: SkillSourceId;
   name: string;
+  globalSkillRoots: string[];
+  projectSkillRoots: string[];
+}
+
+export interface AgentAdapter extends SkillSource {
+  id: AgentId;
   binaryCandidates: string[];
   versionCommand: string[];
   globalConfigPaths: string[];
   projectConfigPaths: string[];
-  globalSkillRoots: string[];
-  projectSkillRoots: string[];
   instructionFilePatterns: {
     global: string[];
     project: string[];

@@ -1,10 +1,21 @@
 export const AGENT_IDS = ["claude-code", "codex", "opencode"] as const;
+/** Agent-agnostic skill source (`~/.agents/skills`, `.agents/skills` — the `npx skills add` standard). */
+export const SHARED_SOURCE_ID = "shared" as const;
+export const SKILL_SOURCE_IDS = [...AGENT_IDS, SHARED_SOURCE_ID] as const;
 export const RESOURCE_KINDS = ["skill", "instruction", "memory", "config"] as const;
 export const SCOPES = ["global", "project"] as const;
 
 export type AgentId = (typeof AGENT_IDS)[number];
+export type SkillSourceId = (typeof SKILL_SOURCE_IDS)[number];
 export type ResourceKind = (typeof RESOURCE_KINDS)[number];
 export type Scope = (typeof SCOPES)[number];
+
+export const SKILL_SOURCE_LABELS: Record<SkillSourceId, string> = {
+  "claude-code": "Claude Code",
+  codex: "Codex",
+  opencode: "opencode",
+  shared: "Shared",
+};
 
 export interface AdapterFileRules {
   instructionFiles: {
@@ -44,7 +55,7 @@ export const ADAPTER_FILE_RULES: Record<AgentId, AdapterFileRules> = {
       global: [],
       project: [],
     },
-    hasSkillRoots: false,
+    hasSkillRoots: true,
   },
   opencode: {
     instructionFiles: {
@@ -55,6 +66,6 @@ export const ADAPTER_FILE_RULES: Record<AgentId, AdapterFileRules> = {
       global: [],
       project: [],
     },
-    hasSkillRoots: false,
+    hasSkillRoots: true,
   },
 };

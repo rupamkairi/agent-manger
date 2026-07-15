@@ -17,8 +17,8 @@
 		invalidateResources,
 		scopeQueryParams,
 	} from "$lib/state/app-state.svelte";
-	import { listSkills } from "$lib/api/endpoints";
-	import type { SkillResource, SkillStatus } from "@weave/shared";
+	import { listSkills, rescanProject, scanGlobal } from "$lib/api/endpoints";
+	import { SKILL_SOURCE_LABELS, type SkillResource, type SkillStatus } from "@weave/shared";
 
 	const STATUS_OPTIONS: { value: SkillStatus; label: string }[] = [
 		{ value: "valid", label: "Valid" },
@@ -39,6 +39,28 @@
 	});
 
 	let importOpen = $state(false);
+	let rescanning = $state(false);
+	let rescanError = $state<string | null>(null);
+
+	async function handleRescan() {
+		if (rescanning) return;
+		rescanning = true;
+		rescanError = null;
+		try {
+			const projectId = getSelectedProjectId();
+			if (projectId) {
+				await rescanProject(projectId);
+			} else {
+				await scanGlobal();
+			}
+			invalidateResources();
+			skillsQuery.refresh();
+		} catch (error) {
+			rescanError = error instanceof Error ? error.message : String(error);
+		} finally {
+			rescanning = false;
+		}
+	}
 
 	function handleImported() {
 		invalidateResources();
@@ -58,8 +80,15 @@
 	const emptyDescription = $derived(
 		getSelectedProjectId()
 			? "Rescan the selected project to discover skills here."
-			: "Run a global scan from the Dashboard to discover skills here.",
+			: "Rescan the global skill locations to discover skills here.",
 	);
+
+	function agentLabel(skill: SkillResource): string {
+		if (skill.linkedAgents.length > 0) {
+			return skill.linkedAgents.map((id) => SKILL_SOURCE_LABELS[id]).join(", ");
+		}
+		return SKILL_SOURCE_LABELS[skill.agentId];
+	}
 
 	let selectedSkill = $state<SkillResource | null>(null);
 	let detailOpen = $state(false);
@@ -105,6 +134,9 @@
 <div class="page-stack">
 	<PageHeader title="Skills" description="Skills discovered across agents.">
 		{#snippet actions()}
+			<Button variant="outline" onclick={handleRescan} disabled={rescanning}>
+				{rescanning ? "Rescanning…" : "Rescan"}
+			</Button>
 			<Button onclick={() => (importOpen = true)}>Import skill</Button>
 		{/snippet}
 	</PageHeader>
@@ -129,6 +161,9 @@
 				{/each}
 			</Select.Content>
 		</Select.Root>
+		{#if rescanError}
+			<p class="text-destructive text-sm">Rescan failed: {rescanError}</p>
+		{/if}
 	</div>
 
 	{#if skillsQuery.error}
@@ -141,6 +176,11 @@
 				emptyTitle="No skills found"
 				emptyDescription={emptyDescription}
 			>
+				{#snippet emptyAction()}
+					<Button variant="outline" size="sm" onclick={handleRescan} disabled={rescanning}>
+						{rescanning ? "Rescanning…" : "Rescan"}
+					</Button>
+				{/snippet}
 				{#snippet header()}
 					<TableHead>Name</TableHead>
 					<TableHead>Description</TableHead>
@@ -164,9 +204,9 @@
 						}}
 					>
 						<TableCell class="font-medium">{skill.skill.name ?? skill.skill.dirName}</TableCell>
-						<TableCell class="max-w-xs">
+						<TableCell>
 							<Tooltip.Root>
-								<Tooltip.Trigger class="block truncate text-left text-sm">
+								<Tooltip.Trigger class="block max-w-xs truncate text-left text-sm">
 									{truncateDescription(skill.skill.description)}
 								</Tooltip.Trigger>
 								{#if skill.skill.description}
@@ -175,7 +215,7 @@
 							</Tooltip.Root>
 						</TableCell>
 						<TableCell><ScopeBadge scope={skill.scope} /></TableCell>
-					<TableCell>{skill.agentId}</TableCell>
+					<TableCell>{agentLabel(skill)}</TableCell>
 					<TableCell><ValidationBadge status={skill.skill.status} /></TableCell>
 					<TableCell>
 						<Tooltip.Root>

@@ -7,8 +7,8 @@ export const codexAdapter: AgentAdapter = {
   versionCommand: ["codex", "--version"],
   globalConfigPaths: ["~/.codex/config.toml"],
   projectConfigPaths: [],
-  globalSkillRoots: [],
-  projectSkillRoots: [],
+  globalSkillRoots: ["~/.codex/skills"],
+  projectSkillRoots: [".codex/skills"],
   instructionFilePatterns: {
     global: ["~/.codex/AGENTS.md"],
     project: ["AGENTS.md"],

@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { AGENT_IDS, SCOPES } from "../constants";
+import { SKILL_SOURCE_IDS, SCOPES } from "../constants";
 
 export const InstallTargetSchema = z
   .object({
-    agentId: z.enum(AGENT_IDS),
+    agentId: z.enum(SKILL_SOURCE_IDS),
     scope: z.enum(SCOPES),
     projectId: z.string().optional(),
   })

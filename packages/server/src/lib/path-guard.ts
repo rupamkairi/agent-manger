@@ -1,8 +1,8 @@
 import { realpath } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
-import type { AgentId, ResourceKind, Scope } from "@weave/shared";
+import type { AgentId, ResourceKind, Scope, SkillSourceId } from "@weave/shared";
 import type { Db } from "../db/client";
-import { getAdapter } from "../adapters/registry";
+import { getAdapter, getSkillSource } from "../adapters/registry";
 import { resolveGlobalPath, resolveProjectPath } from "../adapters/types";
 import { splitGlobPattern } from "../scanner/walk";
 
@@ -194,7 +194,7 @@ async function patternContainmentRootForNewPath(pattern: string): Promise<string
 }
 
 export interface SkillRootTarget {
-  agentId: AgentId;
+  agentId: SkillSourceId;
   scope: Scope;
   projectId?: string | null;
 }
@@ -214,14 +214,14 @@ export async function resolveSkillRootTarget(
   target: SkillRootTarget,
   skillName: string,
 ): Promise<SkillRootResolution> {
-  const adapter = getAdapter(target.agentId);
-  if (!adapter) return { ok: false, error: `Unknown agent: ${target.agentId}` };
+  const source = getSkillSource(target.agentId);
+  if (!source) return { ok: false, error: `Unknown agent: ${target.agentId}` };
 
   if (!SKILL_NAME_PATTERN.test(skillName) || skillName.includes("/") || skillName.includes("\\")) {
     return { ok: false, error: `Invalid skill name: ${skillName}` };
   }
 
-  const roots = target.scope === "global" ? adapter.globalSkillRoots : adapter.projectSkillRoots;
+  const roots = target.scope === "global" ? source.globalSkillRoots : source.projectSkillRoots;
   const rawRoot = roots[0];
   if (!rawRoot) {
     return { ok: false, error: `Agent ${target.agentId} has no verified skill location` };

@@ -1,7 +1,12 @@
 import { homedir } from "node:os";
-import type { Project, Scope, Skill, SkillIssueCode } from "@weave/shared";
-import { listAdapters } from "../adapters/registry";
-import { resolveGlobalPath, resolveProjectPath, type AgentAdapter } from "../adapters/types";
+import type { Project, Scope, Skill, SkillIssueCode, SkillSourceId } from "@weave/shared";
+import { listAdapters, listSkillSources } from "../adapters/registry";
+import {
+  resolveGlobalPath,
+  resolveProjectPath,
+  type AgentAdapter,
+  type SkillSource,
+} from "../adapters/types";
 import type { Db } from "../db/client";
 import { getSettings } from "../services/settings";
 import { getProjectSettings } from "../services/project-settings";
@@ -28,10 +33,11 @@ interface ResourceRow {
   lastScannedAt: string;
   meta: Record<string, unknown>;
   skill?: Skill;
+  linkedAgents?: SkillSourceId[];
 }
 
 async function collectSkillRows(
-  adapter: AgentAdapter,
+  source: SkillSource,
   scope: Scope,
   projectId: string | null,
   projectRoot: string | null,
@@ -39,7 +45,7 @@ async function collectSkillRows(
   options: GlobMatchOptions,
   now: string,
 ): Promise<ResourceRow[]> {
-  const skillRoots = scope === "global" ? adapter.globalSkillRoots : adapter.projectSkillRoots;
+  const skillRoots = scope === "global" ? source.globalSkillRoots : source.projectSkillRoots;
   const rows: ResourceRow[] = [];
 
   for (const rawRoot of skillRoots) {
@@ -57,7 +63,7 @@ async function collectSkillRows(
         symlinkBroken: candidate.symlinkBroken,
         scope,
         projectId,
-        agentId: adapter.id,
+        agentId: source.id,
         sizeBytes: candidate.sizeBytes,
         mtime: candidate.mtime,
         lastScannedAt: now,
@@ -119,6 +125,46 @@ function configRecordToRow(
   };
 }
 
+/**
+ * Skills installed via the agents standard are symlinked into agent skill
+ * roots, so the same real directory is discovered once per source. Merge those
+ * into a single row: the canonical entry is the real (non-symlink) location,
+ * and `linkedAgents` records every agent the skill is configured for.
+ */
+function dedupeSymlinkedSkills(rows: ResourceRow[]): ResourceRow[] {
+  const groups = new Map<string, ResourceRow[]>();
+  const result: ResourceRow[] = [];
+
+  for (const row of rows) {
+    if (row.kind !== "skill" || row.symlinkBroken) {
+      result.push(row);
+      continue;
+    }
+    const key = `${row.scope}::${row.projectId ?? ""}::${row.path}`;
+    const list = groups.get(key) ?? [];
+    list.push(row);
+    groups.set(key, list);
+  }
+
+  for (const list of groups.values()) {
+    const canonical =
+      list.find((row) => !row.isSymlink && row.agentId === "shared") ??
+      list.find((row) => !row.isSymlink) ??
+      list[0]!;
+    const linkedAgents = Array.from(
+      new Set(
+        list
+          .map((row) => row.agentId as SkillSourceId)
+          .filter((agentId) => agentId !== "shared"),
+      ),
+    );
+    canonical.linkedAgents = linkedAgents;
+    result.push(canonical);
+  }
+
+  return result;
+}
+
 function markDuplicateSkillNames(rows: ResourceRow[]): void {
   const groups = new Map<string, ResourceRow[]>();
   for (const row of rows) {
@@ -166,11 +212,11 @@ async function collectScopeRows(
     maxScanDepth: settings.maxScanDepth,
   };
   const now = new Date().toISOString();
-  const rows: ResourceRow[] = [];
+  let rows: ResourceRow[] = [];
 
-  for (const adapter of listAdapters()) {
+  for (const source of listSkillSources()) {
     const skillRows = await collectSkillRows(
-      adapter,
+      source,
       scope,
       projectId,
       projectRoot,
@@ -179,7 +225,9 @@ async function collectScopeRows(
       now,
     );
     rows.push(...skillRows);
+  }
 
+  for (const adapter of listAdapters()) {
     const instructionRecords = await scanInstructionFiles(
       adapter,
       scope,
@@ -202,6 +250,7 @@ async function collectScopeRows(
     }
   }
 
+  rows = dedupeSymlinkedSkills(rows);
   markDuplicateSkillNames(rows);
   return rows;
 }
@@ -231,7 +280,7 @@ async function persistRows(
       const meta = (() => {
         if (row.kind !== "skill" || !row.skill) return row.meta;
         const { issues: _issues, ...skill } = row.skill;
-        return { skill };
+        return { skill, linkedAgents: row.linkedAgents ?? [] };
       })();
       await db.run(
         `INSERT INTO resources

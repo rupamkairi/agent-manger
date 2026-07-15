@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AGENT_IDS, SCOPES } from "../constants";
+import { SKILL_SOURCE_IDS, SCOPES } from "../constants";
 import { InstallTargetSchema } from "./write-common";
 
 export const SyncFileStateSchema = z.enum(["same", "modified", "left-only", "right-only"]);
@@ -38,10 +38,10 @@ export type SyncDiff = z.infer<typeof SyncDiffSchema>;
 
 export const SyncDiffQuerySchema = z.object({
   skillName: z.string().min(1),
-  leftAgentId: z.enum(AGENT_IDS),
+  leftAgentId: z.enum(SKILL_SOURCE_IDS),
   leftScope: z.enum(SCOPES),
   leftProjectId: z.string().optional(),
-  rightAgentId: z.enum(AGENT_IDS),
+  rightAgentId: z.enum(SKILL_SOURCE_IDS),
   rightScope: z.enum(SCOPES),
   rightProjectId: z.string().optional(),
 });
