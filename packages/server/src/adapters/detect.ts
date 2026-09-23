@@ -1,4 +1,4 @@
-import type { AgentDetectionResult } from "@weave/shared";
+import type { AgentDetectionResult } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { listAdapters } from "./registry";
 import type { AgentAdapter } from "./types";

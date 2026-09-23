@@ -1,4 +1,4 @@
-import { ResourceContentSchema } from "@weave/shared";
+import { ResourceContentSchema } from "@harbor/shared";
 import { getResourceContent } from "../../services/resources";
 import { err, ok } from "../respond";
 import type { RegisterRoutes } from "./types";

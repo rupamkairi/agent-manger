@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Progress } from "$lib/components/ui/progress";
 	import { Alert, AlertTitle, AlertDescription } from "$lib/components/ui/alert";
-	import type { TargetResult } from "@weave/shared";
+	import type { TargetResult } from "@harbor/shared";
 
 	let {
 		installing,

@@ -1,5 +1,5 @@
 import { extname } from "node:path";
-import type { Scope } from "@weave/shared";
+import type { Scope } from "@harbor/shared";
 import { resolveGlobalPath, resolveProjectPath, type AgentAdapter } from "../adapters/types";
 import { buildFileRecord, type FileRecord } from "./file-record";
 import { isPathAllowed, type GlobMatchOptions } from "./walk";

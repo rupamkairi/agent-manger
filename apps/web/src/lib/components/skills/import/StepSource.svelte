@@ -2,7 +2,7 @@
 	import { Label } from "$lib/components/ui/label";
 	import { Input } from "$lib/components/ui/input";
 	import * as Select from "$lib/components/ui/select";
-	import type { SkillSource } from "@weave/shared";
+	import type { SkillSource } from "@harbor/shared";
 
 	type SourceKind = SkillSource["kind"];
 

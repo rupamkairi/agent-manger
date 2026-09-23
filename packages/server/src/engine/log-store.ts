@@ -6,8 +6,8 @@ import type { WorkflowEvents } from "./events";
 
 export class JobLogStore {
   readonly root: string;
-  constructor(private readonly db: Db, private readonly events: WorkflowEvents, weaveHome?: string) {
-    this.root = join(weaveHome ?? process.env.WEAVE_HOME ?? join(homedir(), ".weave"), "logs", "jobs");
+  constructor(private readonly db: Db, private readonly events: WorkflowEvents, harborHome?: string) {
+    this.root = join(harborHome ?? process.env.HARBOR_HOME ?? join(homedir(), ".harbor"), "logs", "jobs");
   }
 
   async create(jobId: string): Promise<{ id: string; stdoutPath: string; stderrPath: string }> {

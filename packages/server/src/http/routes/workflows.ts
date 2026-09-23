@@ -5,7 +5,7 @@ import {
   WorkflowRunRequestSchema,
   WorkflowRunResultSchema,
   WorkflowSummaryListSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { getWorkflowRuntime } from "../../engine/runtime";
 import { checkWorkflowDependencies } from "../../services/workflow-dependencies";
 import { createWorkflow, deleteWorkflow, getWorkflow, listWorkflows, updateWorkflow } from "../../services/workflows";

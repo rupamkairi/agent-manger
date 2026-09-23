@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { WorkflowDefinitionSchema, type WorkflowDefinition } from "@weave/shared";
+import { WorkflowDefinitionSchema, type WorkflowDefinition } from "@harbor/shared";
 import { createDb, type Db } from "./db/client";
 import { runMigrations } from "./db/migrate";
 import { checkWorkflowDependencies } from "./services/workflow-dependencies";
@@ -12,9 +12,9 @@ import { recoverInterruptedJobs } from "./services/jobs";
 
 const roots: string[] = [];
 async function setup(): Promise<{ db: Db; root: string }> {
-  const root = await mkdtemp(join(tmpdir(), "weave-workflow-test-"));
+  const root = await mkdtemp(join(tmpdir(), "harbor-workflow-test-"));
   roots.push(root);
-  const db = createDb(join(root, "weave.db"));
+  const db = await createDb(join(root, "harbor.db"));
   await runMigrations(db);
   return { db, root };
 }

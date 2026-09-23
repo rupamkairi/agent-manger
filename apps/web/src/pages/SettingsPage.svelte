@@ -27,7 +27,7 @@
 	import { formatDateTime } from "$lib/workflows/format";
 	import { toast } from "svelte-sonner";
 	import { getSelectedProjectId } from "$lib/state/app-state.svelte";
-	import { AGENT_IDS, type Settings, type AgentId, type ProjectSettings } from "@weave/shared";
+	import { AGENT_IDS, type Settings, type AgentId, type ProjectSettings } from "@harbor/shared";
 	import SaveIcon from "@lucide/svelte/icons/save";
 	import RefreshCwIcon from "@lucide/svelte/icons/refresh-cw";
 

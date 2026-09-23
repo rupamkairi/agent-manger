@@ -2,7 +2,7 @@ import {
   WorkflowDefinitionSchema,
   type WorkflowDefinition,
   type WorkflowSummary,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { Db } from "../db/client";
 
 interface WorkflowRow {

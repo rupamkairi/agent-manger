@@ -1,4 +1,5 @@
 import { installSignalHandlers, startApp } from "./app";
 
-const app = await startApp();
+// Dev entry: API only. Run the web UI separately (`bun run dev:web`, port 11124).
+const app = await startApp({ headless: true });
 installSignalHandlers(app);

@@ -7,7 +7,7 @@
 	import { ApiError } from "$lib/api/client";
 	import { navigate } from "$lib/router.svelte";
 	import { toast } from "svelte-sonner";
-	import type { WorkflowDefinition } from "@weave/shared";
+	import type { WorkflowDefinition } from "@harbor/shared";
 
 	let { params }: { params: Record<string, string> } = $props();
 	const workflowId = $derived(params.workflowId ?? null);

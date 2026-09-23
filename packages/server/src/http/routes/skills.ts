@@ -14,7 +14,7 @@ import {
   SyncDiffSchema,
   SyncRequestSchema,
   SyncResultSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { z } from "zod";
 import { getResource, listResourcesByKind } from "../../services/resources";
 import { deleteSkillCopy, installSkillFromResource } from "../../services/skill-write";

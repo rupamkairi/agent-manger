@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
-	import type { Scope } from "@weave/shared";
+	import type { Scope } from "@harbor/shared";
 
 	let { scope }: { scope: Scope } = $props();
 </script>

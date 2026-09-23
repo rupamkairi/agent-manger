@@ -1,4 +1,4 @@
-import type { Job, JobState, ScheduleSpec } from "@weave/shared";
+import type { Job, JobState, ScheduleSpec } from "@harbor/shared";
 
 export function formatDateTime(value: string | null): string {
 	if (!value) return "—";

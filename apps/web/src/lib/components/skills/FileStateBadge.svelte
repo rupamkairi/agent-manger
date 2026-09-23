@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
-	import type { SyncFileState } from "@weave/shared";
+	import type { SyncFileState } from "@harbor/shared";
 
 	let { state }: { state: SyncFileState } = $props();
 

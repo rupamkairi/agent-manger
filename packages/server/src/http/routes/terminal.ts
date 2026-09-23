@@ -3,7 +3,7 @@ import {
   TerminalSessionCreateSchema,
   TerminalSessionListSchema,
   TerminalSessionSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { z } from "zod";
 import type { Db } from "../../db/client";
 import type { Router } from "../../router";

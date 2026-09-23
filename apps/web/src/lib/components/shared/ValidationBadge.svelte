@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
-	import type { SkillStatus } from "@weave/shared";
+	import type { SkillStatus } from "@harbor/shared";
 
 	let { status }: { status: SkillStatus } = $props();
 

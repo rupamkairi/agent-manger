@@ -4,17 +4,17 @@ import { dirname, join } from "node:path";
 
 export interface Env {
   port: number;
-  weaveHome: string;
+  harborHome: string;
   dbPath: string;
 }
 
 export function loadEnv(): Env {
-  const weaveHome = process.env.WEAVE_HOME ?? join(homedir(), ".weave");
-  const dbPath = process.env.WEAVE_DB_PATH ?? join(weaveHome, "weave.db");
-  const port = Number(process.env.WEAVE_PORT ?? 3000);
+  const harborHome = process.env.HARBOR_HOME ?? join(homedir(), ".harbor");
+  const dbPath = process.env.HARBOR_DB_PATH ?? join(harborHome, "harbor.db");
+  const port = Number(process.env.HARBOR_PORT ?? 11123);
 
-  mkdirSync(weaveHome, { recursive: true });
+  mkdirSync(harborHome, { recursive: true });
   mkdirSync(dirname(dbPath), { recursive: true });
 
-  return { port, weaveHome, dbPath };
+  return { port, harborHome, dbPath };
 }

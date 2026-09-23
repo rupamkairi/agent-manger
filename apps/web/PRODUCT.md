@@ -14,11 +14,11 @@ Technical builders—developers and technical leads—who manage local AI agents
 
 ## Product Purpose
 
-Weave is a control panel for discovering, inspecting, configuring, and maintaining AI agents and their resources, including skills, instructions, memory, configs, and health. Success means helping builders understand system state quickly, make changes with confidence, and manage projects without unnecessary context switching. The most important outcome may shift between situational awareness, safe configuration, and operational reliability as the product develops.
+Harbor is a control panel for discovering, inspecting, configuring, and maintaining AI agents and their resources, including skills, instructions, memory, configs, and health. Success means helping builders understand system state quickly, make changes with confidence, and manage projects without unnecessary context switching. The most important outcome may shift between situational awareness, safe configuration, and operational reliability as the product develops.
 
 ## Positioning
 
-Weave is a precise, calm control plane that gives technical builders one place to understand and maintain AI tooling across projects.
+Harbor is a precise, calm control plane that gives technical builders one place to understand and maintain AI tooling across projects.
 
 ## Brand Personality
 

@@ -1,4 +1,4 @@
-import type { Scope } from "@weave/shared";
+import type { Scope } from "@harbor/shared";
 import { resolveGlobalPath, resolveProjectPath, type AgentAdapter } from "../adapters/types";
 import { globMatch, type GlobMatchOptions } from "./walk";
 import { buildFileRecord, type FileRecord } from "./file-record";

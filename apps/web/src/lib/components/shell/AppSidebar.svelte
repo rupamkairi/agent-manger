@@ -44,10 +44,10 @@
     >
       <span
         class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-semibold tracking-tight"
-        >W</span
+        >H</span
       >
       <div class="min-w-0 group-data-[collapsible=icon]:hidden">
-        <p class="truncate text-sm font-semibold tracking-tight">Weave</p>
+        <p class="truncate text-sm font-semibold tracking-tight">Harbor</p>
         <p class="text-muted-foreground truncate text-xs">Control plane</p>
       </div>
     </div>

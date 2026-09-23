@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
-	import type { JobState } from "@weave/shared";
+	import type { JobState } from "@harbor/shared";
 
 	let { state }: { state: JobState } = $props();
 	const label = $derived(state.charAt(0).toUpperCase() + state.slice(1));

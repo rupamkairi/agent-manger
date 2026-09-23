@@ -1,4 +1,4 @@
-import type { Job, WorkflowDefinition, WorkflowStep } from "@weave/shared";
+import type { Job, WorkflowDefinition, WorkflowStep } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { getJob, insertJob, patchJob } from "../services/jobs";
 import type { WorkflowEvents } from "./events";

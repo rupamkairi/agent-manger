@@ -1,4 +1,4 @@
-import type { Scope } from "@weave/shared";
+import type { Scope } from "@harbor/shared";
 import type { z } from "zod";
 
 export class ValidationError extends Error {

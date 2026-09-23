@@ -1,4 +1,4 @@
-import { AgentIdSchema, HealthSeveritySchema, HealthSummarySchema, ScopeSchema } from "@weave/shared";
+import { AgentIdSchema, HealthSeveritySchema, HealthSummarySchema, ScopeSchema } from "@harbor/shared";
 import { z } from "zod";
 import { getHealthSummary } from "../../services/health";
 import { ok } from "../respond";

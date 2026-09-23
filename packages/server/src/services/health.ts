@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import type { AgentId, HealthIssue, HealthSeverity, HealthSummary, Scope } from "@weave/shared";
+import type { AgentId, HealthIssue, HealthSeverity, HealthSummary, Scope, SkillSourceId } from "@harbor/shared";
 import type { Db } from "../db/client";
 
 const STALE_SCAN_MS = 7 * 24 * 60 * 60 * 1000;
@@ -53,7 +53,7 @@ async function collectAgentDetectionIssues(db: Db): Promise<HealthIssue[]> {
       id: `agent-detection:${row.agent_id}`,
       severity,
       source: "agent-detection",
-      agentId: row.agent_id as AgentId,
+      agentId: row.agent_id as SkillSourceId,
       projectId: null,
       resourceId: null,
       message,
@@ -75,7 +75,7 @@ async function collectSkillIssueIssues(db: Db): Promise<HealthIssue[]> {
     id: `skill-issue:${row.id}`,
     severity: (row.severity === "error" ? "error" : "warning") as HealthSeverity,
     source: "skill-validation" as const,
-    agentId: row.agent_id as AgentId,
+    agentId: row.agent_id as SkillSourceId,
     projectId: row.project_id,
     resourceId: row.resource_id,
     message: row.message,
@@ -92,7 +92,7 @@ async function collectBrokenSymlinkIssues(db: Db): Promise<HealthIssue[]> {
     id: `broken-symlink:${row.id}`,
     severity: "warning" as HealthSeverity,
     source: "resource-scan" as const,
-    agentId: row.agent_id as AgentId,
+    agentId: row.agent_id as SkillSourceId,
     projectId: row.project_id,
     resourceId: row.id,
     message: "Resource is a broken symlink",

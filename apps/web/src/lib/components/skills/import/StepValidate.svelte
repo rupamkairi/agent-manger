@@ -2,7 +2,7 @@
 	import { Alert, AlertTitle, AlertDescription } from "$lib/components/ui/alert";
 	import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "$lib/components/ui/table";
 	import { ScrollArea } from "$lib/components/ui/scroll-area";
-	import type { SkillLoadResult } from "@weave/shared";
+	import type { SkillLoadResult } from "@harbor/shared";
 
 	let { result }: { result: SkillLoadResult } = $props();
 </script>

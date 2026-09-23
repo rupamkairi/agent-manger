@@ -1,4 +1,4 @@
-import type { TerminalServerMessage } from "@weave/shared";
+import type { TerminalServerMessage } from "@harbor/shared";
 
 export type TerminalSocketStatus = "connecting" | "open" | "reconnecting" | "closed";
 

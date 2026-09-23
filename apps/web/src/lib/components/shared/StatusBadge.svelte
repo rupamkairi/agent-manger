@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
-	import type { DetectionState } from "@weave/shared";
+	import type { DetectionState } from "@harbor/shared";
 
 	let { state }: { state: DetectionState } = $props();
 

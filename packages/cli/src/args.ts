@@ -3,7 +3,8 @@ import { parseArgs } from "node:util";
 export interface ServeArgs {
   port?: number;
   db?: string;
-  headless: boolean;
+  serveUi: boolean;
+  open: boolean;
 }
 
 export interface ServiceArgs {
@@ -21,7 +22,8 @@ export function parseServeArgs(argv: string[]): ServeArgs {
     options: {
       port: { type: "string" },
       db: { type: "string" },
-      headless: { type: "boolean", default: false },
+      "serve-ui": { type: "boolean", default: false },
+      open: { type: "boolean", default: false },
     },
     allowPositionals: true,
     strict: false,
@@ -39,11 +41,12 @@ export function parseServeArgs(argv: string[]): ServeArgs {
   return {
     port,
     db: typeof values.db === "string" ? values.db : undefined,
-    headless: Boolean(values.headless),
+    serveUi: Boolean(values["serve-ui"]),
+    open: Boolean(values.open),
   };
 }
 
-const SERVICE_HELP = `Usage: weave service <install|uninstall|status>`;
+const SERVICE_HELP = `Usage: harbor service <install|uninstall|status>`;
 
 export function parseServiceArgs(argv: string[]): ServiceArgs {
   const { positionals } = parseArgs({

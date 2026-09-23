@@ -1,4 +1,4 @@
-import { ProjectSettingsSchema, type ProjectSettings, type ProjectSettingsPatch } from "@weave/shared";
+import { ProjectSettingsSchema, type ProjectSettings, type ProjectSettingsPatch } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { getProjectRow } from "./projects";
 

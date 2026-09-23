@@ -14,7 +14,7 @@
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import XIcon from "@lucide/svelte/icons/x";
 	import SquareTerminalIcon from "@lucide/svelte/icons/square-terminal";
-	import type { TerminalSession } from "@weave/shared";
+	import type { TerminalSession } from "@harbor/shared";
 
 	const availabilityQuery = createQuery(() => getTerminalAvailability());
 	const sessionsQuery = createQuery(() => listTerminalSessions(), { silent: true });
@@ -63,7 +63,7 @@
 </script>
 
 <div class="page-stack flex min-h-0 flex-1 flex-col">
-	<PageHeader title="Terminal" description="Run shell sessions on the machine hosting Weave.">
+	<PageHeader title="Terminal" description="Run shell sessions on the machine hosting Harbor.">
 		{#snippet actions()}
 			{#if availabilityQuery.data?.available}
 				<Button size="sm" onclick={handleCreate} disabled={creating}>

@@ -1,6 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
-import type { Skill, SkillIssueCode, SkillStatus, SkillValidationIssue } from "@weave/shared";
+import type { Skill, SkillIssueCode, SkillStatus, SkillValidationIssue } from "@harbor/shared";
 import { extractFrontmatter } from "./frontmatter";
 import { isPathAllowed, resolveSymlink, safeLstat, type GlobMatchOptions } from "./walk";
 

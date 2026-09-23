@@ -17,7 +17,7 @@
 		invalidateProjectCatalog,
 		setSelectedProjectId,
 	} from "$lib/state/app-state.svelte";
-	import type { Project } from "@weave/shared";
+	import type { Project } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),
@@ -55,7 +55,7 @@
 		<AlertDialogHeader>
 			<AlertDialogTitle>Remove project?</AlertDialogTitle>
 			<AlertDialogDescription>
-				This removes "{project?.name}" from Weave's tracking list only. Files on disk at
+				This removes "{project?.name}" from Harbor's tracking list only. Files on disk at
 				<span class="font-mono">{project?.rootPath}</span> are not deleted or changed.
 			</AlertDialogDescription>
 		</AlertDialogHeader>

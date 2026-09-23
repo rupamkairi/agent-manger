@@ -16,7 +16,7 @@
 	import { ApiError } from "$lib/api/client";
 	import { getSelectedProjectId, currentScope, invalidateResources } from "$lib/state/app-state.svelte";
 	import { toast } from "svelte-sonner";
-	import { ADAPTER_FILE_RULES, AGENT_IDS, type AgentId, type FilePutResponse } from "@weave/shared";
+	import { ADAPTER_FILE_RULES, AGENT_IDS, type AgentId, type FilePutResponse } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),

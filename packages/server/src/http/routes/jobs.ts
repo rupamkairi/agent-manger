@@ -1,4 +1,4 @@
-import { JobCancelResultSchema, JobDetailSchema, JobListSchema, JobStateSchema, type Job } from "@weave/shared";
+import { JobCancelResultSchema, JobDetailSchema, JobListSchema, JobStateSchema, type Job } from "@harbor/shared";
 import { z } from "zod";
 import { getWorkflowRuntime } from "../../engine/runtime";
 import { getJob, getJobDetail, listJobs } from "../../services/jobs";

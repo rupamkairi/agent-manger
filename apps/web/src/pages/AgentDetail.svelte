@@ -21,7 +21,7 @@
 	import { link } from "$lib/router.svelte";
 	import { scopeQueryParams } from "$lib/state/app-state.svelte";
 	import { toast } from "svelte-sonner";
-	import type { AgentId } from "@weave/shared";
+	import type { AgentId } from "@harbor/shared";
 
 	let { params }: { params: Record<string, string> } = $props();
 

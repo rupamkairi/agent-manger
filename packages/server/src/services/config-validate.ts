@@ -1,5 +1,5 @@
 import { extname } from "node:path";
-import type { SyntaxErrorDetail } from "@weave/shared";
+import type { SyntaxErrorDetail } from "@harbor/shared";
 import { TomlError, parse as parseToml } from "smol-toml";
 import { parse as parseYaml, YAMLParseError } from "yaml";
 

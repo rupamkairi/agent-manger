@@ -13,7 +13,7 @@ import type {
   SkillResource,
   SkillStatus,
   SkillValidationIssue,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { InValue } from "@libsql/client";
 import type { Db } from "../db/client";
 import { sha256Hex } from "../lib/hash";

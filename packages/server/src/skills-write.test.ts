@@ -11,9 +11,9 @@ import { cleanupStaging, loadSkill, SkillImportError } from "./services/skill-im
 const tempDirectories: string[] = [];
 
 async function createTestDb(): Promise<{ db: Db; root: string }> {
-  const root = await mkdtemp(join(tmpdir(), "weave-skills-write-test-"));
+  const root = await mkdtemp(join(tmpdir(), "harbor-skills-write-test-"));
   tempDirectories.push(root);
-  const db = createDb(join(root, "weave.db"));
+  const db = await createDb(join(root, "harbor.db"));
   await runMigrations(db);
   return { db, root };
 }
@@ -90,7 +90,7 @@ describe("skill-write", () => {
       new Date().toISOString(),
     ]);
 
-    const outsidePath = join(root, "..", `weave-outside-${crypto.randomUUID()}`);
+    const outsidePath = join(root, "..", `harbor-outside-${crypto.randomUUID()}`);
     await mkdir(outsidePath, { recursive: true });
     await writeFile(join(outsidePath, "SKILL.md"), "---\nname: evil\n---\n");
 
@@ -120,7 +120,7 @@ describe("skill-write", () => {
 
 describe("hashDir", () => {
   it("is deterministic regardless of traversal order and content changes affect the hash", async () => {
-    const root = await mkdtemp(join(tmpdir(), "weave-hashdir-test-"));
+    const root = await mkdtemp(join(tmpdir(), "harbor-hashdir-test-"));
     tempDirectories.push(root);
     await mkdir(join(root, "a"), { recursive: true });
     await mkdir(join(root, "b"), { recursive: true });
@@ -141,10 +141,10 @@ describe("hashDir", () => {
 describe("skill-import staging", () => {
   it("rejects a zip-slip entry", async () => {
     const { db } = await createTestDb();
-    const stagingRoot = await mkdtemp(join(tmpdir(), "weave-staging-test-"));
+    const stagingRoot = await mkdtemp(join(tmpdir(), "harbor-staging-test-"));
     tempDirectories.push(stagingRoot);
 
-    const zipDir = await mkdtemp(join(tmpdir(), "weave-zip-source-"));
+    const zipDir = await mkdtemp(join(tmpdir(), "harbor-zip-source-"));
     tempDirectories.push(zipDir);
 
     const { zipSync } = await import("fflate");
@@ -161,7 +161,7 @@ describe("skill-import staging", () => {
   });
 
   it("removes expired staging directories on cleanup", async () => {
-    const stagingRoot = await mkdtemp(join(tmpdir(), "weave-staging-ttl-test-"));
+    const stagingRoot = await mkdtemp(join(tmpdir(), "harbor-staging-ttl-test-"));
     tempDirectories.push(stagingRoot);
 
     const expiredDir = join(stagingRoot, "expired-id");

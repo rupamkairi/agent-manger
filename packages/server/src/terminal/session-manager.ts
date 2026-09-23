@@ -3,7 +3,7 @@ import {
   TerminalClientMessageSchema,
   type TerminalServerMessage,
   type TerminalSession,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { Db } from "../db/client";
 import { loadEnv } from "../env";
 import { getProjectRow } from "../services/projects";
@@ -48,7 +48,7 @@ export interface TerminalSessionManagerOpts {
   idleTimeoutMs?: number;
   ringCapacity?: number;
   maxSessions?: number;
-  weaveHome?: string;
+  harborHome?: string;
 }
 
 const DEFAULT_IDLE_TIMEOUT_MS = 30 * 60_000;
@@ -67,7 +67,7 @@ export class TerminalSessionManager {
   private readonly idleTimeoutMs: number;
   private readonly ringCapacity: number;
   private readonly maxSessions: number;
-  private readonly weaveHome: string;
+  private readonly harborHome: string;
 
   constructor(
     private readonly db: Db,
@@ -77,7 +77,7 @@ export class TerminalSessionManager {
     this.idleTimeoutMs = opts.idleTimeoutMs ?? DEFAULT_IDLE_TIMEOUT_MS;
     this.ringCapacity = opts.ringCapacity ?? DEFAULT_RING_CAPACITY;
     this.maxSessions = opts.maxSessions ?? DEFAULT_MAX_SESSIONS;
-    this.weaveHome = opts.weaveHome ?? loadEnv().weaveHome;
+    this.harborHome = opts.harborHome ?? loadEnv().harborHome;
   }
 
   get available(): boolean {
@@ -257,7 +257,7 @@ export class TerminalSessionManager {
   }
 
   private async resolveCwd(projectId: string | null): Promise<string> {
-    if (projectId === null) return this.weaveHome;
+    if (projectId === null) return this.harborHome;
     const row = await getProjectRow(this.db, projectId);
     if (!row) {
       throw new TerminalServiceError("not_found", `Project not found: ${projectId}`);

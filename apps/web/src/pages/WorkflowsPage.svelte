@@ -14,7 +14,7 @@
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import PlayIcon from "@lucide/svelte/icons/play";
 	import EllipsisIcon from "@lucide/svelte/icons/ellipsis";
-	import type { WorkflowSummary } from "@weave/shared";
+	import type { WorkflowSummary } from "@harbor/shared";
 
 	const workflowsQuery = createQuery(() => listWorkflows());
 	let runOpen = $state(false);

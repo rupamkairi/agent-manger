@@ -10,7 +10,7 @@ import type {
   SyncRequest,
   SyncResult,
   SyncStatus,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { Db } from "../db/client";
 import { copyDirReplace } from "../lib/fs-safe";
 import { hashDir, type DirHashResult } from "../lib/hash";

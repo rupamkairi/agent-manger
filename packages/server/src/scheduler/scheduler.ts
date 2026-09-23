@@ -1,4 +1,4 @@
-import type { DependencyCheckResult, Schedule } from "@weave/shared";
+import type { DependencyCheckResult, Schedule } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { getHostname } from "../sync/manager";
 import {

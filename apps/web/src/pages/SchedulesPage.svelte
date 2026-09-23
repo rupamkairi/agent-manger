@@ -15,7 +15,7 @@
 	import { toast } from "svelte-sonner";
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import EllipsisIcon from "@lucide/svelte/icons/ellipsis";
-	import type { Schedule, ScheduleWrite } from "@weave/shared";
+	import type { Schedule, ScheduleWrite } from "@harbor/shared";
 
 	const schedulesQuery = createQuery(() => listSchedules());
 	const workflowsQuery = createQuery(() => listWorkflows(), { silent: true });

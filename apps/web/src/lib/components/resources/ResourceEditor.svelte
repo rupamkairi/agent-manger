@@ -8,7 +8,7 @@
 	import { getResourceContent } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
 	import { toast } from "svelte-sonner";
-	import type { SyntaxErrorDetail } from "@weave/shared";
+	import type { SyntaxErrorDetail } from "@harbor/shared";
 
 	let {
 		resourceId,

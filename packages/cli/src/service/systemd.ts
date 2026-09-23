@@ -3,23 +3,23 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const UNIT_NAME = "weave";
+const UNIT_NAME = "harbor";
 
 export interface SystemdContext {
   bunPath: string;
   cliEntry: string;
-  weaveHome: string;
+  harborHome: string;
 }
 
-export function renderUnit({ bunPath, cliEntry, weaveHome }: SystemdContext): string {
+export function renderUnit({ bunPath, cliEntry, harborHome }: SystemdContext): string {
   return `[Unit]
-Description=Weave server
+Description=Harbor server
 
 [Service]
 ExecStart=${bunPath} ${cliEntry} serve
 Restart=on-failure
 RestartSec=5
-Environment=WEAVE_HOME=${weaveHome}
+Environment=HARBOR_HOME=${harborHome}
 
 [Install]
 WantedBy=default.target
@@ -33,8 +33,8 @@ function unitPath(): string {
 function context(): SystemdContext {
   const bunPath = process.execPath;
   const cliEntry = fileURLToPath(new URL("../index.ts", import.meta.url));
-  const weaveHome = process.env.WEAVE_HOME ?? join(homedir(), ".weave");
-  return { bunPath, cliEntry, weaveHome };
+  const harborHome = process.env.HARBOR_HOME ?? join(homedir(), ".harbor");
+  return { bunPath, cliEntry, harborHome };
 }
 
 async function run(cmd: string[]): Promise<number> {
@@ -43,10 +43,10 @@ async function run(cmd: string[]): Promise<number> {
 }
 
 export async function installSystemd(): Promise<void> {
-  const { bunPath, cliEntry, weaveHome } = context();
-  mkdirSync(join(weaveHome, "logs"), { recursive: true });
+  const { bunPath, cliEntry, harborHome } = context();
+  mkdirSync(join(harborHome, "logs"), { recursive: true });
 
-  const unit = renderUnit({ bunPath, cliEntry, weaveHome });
+  const unit = renderUnit({ bunPath, cliEntry, harborHome });
   const path = unitPath();
   mkdirSync(join(homedir(), ".config", "systemd", "user"), { recursive: true });
   writeFileSync(path, unit);

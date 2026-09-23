@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, mock, spyOn } from "bun:test";
-import type { AgentId } from "@weave/shared";
+import type { AgentId } from "@harbor/shared";
 import { AnsiSanitizer, buildStepArgv, StepExecutor, type StepExecution } from "./engine/step-executor";
 
 afterEach(() => mock.restore());

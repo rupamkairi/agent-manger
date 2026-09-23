@@ -9,7 +9,7 @@
 	import { checkWorkflow, getWorkflow, runWorkflow } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
 	import { navigate } from "$lib/router.svelte";
-	import { DependencyCheckResultSchema, type DependencyCheckResult, type WorkflowDefinition } from "@weave/shared";
+	import { DependencyCheckResultSchema, type DependencyCheckResult, type WorkflowDefinition } from "@harbor/shared";
 	import PlayIcon from "@lucide/svelte/icons/play";
 	import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
 
@@ -91,7 +91,7 @@
 			{/if}
 
 			<div class="flex items-center justify-between gap-3">
-				<div><h3 class="text-sm font-medium">Dependency check</h3><p class="text-muted-foreground text-xs">Agents and resources are checked against Weave’s index.</p></div>
+				<div><h3 class="text-sm font-medium">Dependency check</h3><p class="text-muted-foreground text-xs">Agents and resources are checked against Harbor’s index.</p></div>
 				<Button variant="outline" size="sm" onclick={refreshCheck} disabled={loading}>{loading ? "Checking…" : check ? "Check again" : "Check dependencies"}</Button>
 			</div>
 

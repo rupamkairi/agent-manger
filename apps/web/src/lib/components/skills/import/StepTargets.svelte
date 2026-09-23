@@ -3,7 +3,7 @@
 	import * as Select from "$lib/components/ui/select";
 	import * as Tooltip from "$lib/components/ui/tooltip";
 	import { Label } from "$lib/components/ui/label";
-	import { AGENT_IDS, ADAPTER_FILE_RULES, type AgentId, type Scope } from "@weave/shared";
+	import { AGENT_IDS, ADAPTER_FILE_RULES, type AgentId, type Scope } from "@harbor/shared";
 
 	let {
 		targets = $bindable(),

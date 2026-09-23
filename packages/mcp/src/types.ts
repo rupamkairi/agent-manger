@@ -8,7 +8,7 @@ import type {
   SkillResource,
   SkillStatus,
   WorkflowSummary,
-} from "@weave/shared";
+} from "@harbor/shared";
 
 export type {
   AgentInfo,

@@ -12,7 +12,7 @@
 	import { toast } from "svelte-sonner";
 	import { deleteSkill } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
-	import type { SkillResource } from "@weave/shared";
+	import type { SkillResource } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),

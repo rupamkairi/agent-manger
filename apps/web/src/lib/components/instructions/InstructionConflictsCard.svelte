@@ -4,7 +4,7 @@
 	import { Badge } from "$lib/components/ui/badge";
 	import { Button } from "$lib/components/ui/button";
 	import ChevronDownIcon from "@lucide/svelte/icons/chevron-down";
-	import type { InstructionConflict } from "@weave/shared";
+	import type { InstructionConflict } from "@harbor/shared";
 
 	let {
 		conflicts,

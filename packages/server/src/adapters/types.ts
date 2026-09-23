@@ -1,6 +1,6 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { AgentId, SkillSourceId } from "@weave/shared";
+import type { AgentId, SkillSourceId } from "@harbor/shared";
 
 /**
  * Anything the scanner can discover skills for: an agent adapter or the

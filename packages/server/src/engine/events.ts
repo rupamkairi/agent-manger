@@ -1,5 +1,5 @@
 import { EventEmitter } from "node:events";
-import type { Job } from "@weave/shared";
+import type { Job } from "@harbor/shared";
 
 export interface LogEvent {
   jobId: string;

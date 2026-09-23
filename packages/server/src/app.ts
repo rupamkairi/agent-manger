@@ -11,7 +11,7 @@ import { SyncManager } from "./sync/manager";
 export interface StartOptions {
   port?: number;
   dbPath?: string;
-  weaveHome?: string;
+  harborHome?: string;
   headless?: boolean;
   /** null = force-disable sync; undefined = read sync.json. */
   syncConfig?: SyncConfig | null;
@@ -27,7 +27,7 @@ export interface RunningApp {
 }
 
 function resolveSyncConfig(
-  weaveHome: string,
+  harborHome: string,
   option: SyncConfig | null | undefined,
 ): LoadedSyncConfig {
   if (option === null) return { enabled: false };
@@ -39,20 +39,20 @@ function resolveSyncConfig(
       syncIntervalMs: option.syncIntervalMs ?? 60_000,
     };
   }
-  return loadSyncFile(weaveHome);
+  return loadSyncFile(harborHome);
 }
 
 export async function startApp(options: StartOptions = {}): Promise<RunningApp> {
   const env = loadEnv();
   const port = options.port ?? env.port;
-  const weaveHome = options.weaveHome ?? env.weaveHome;
+  const harborHome = options.harborHome ?? env.harborHome;
   const dbPath =
-    options.dbPath ?? (options.weaveHome ? join(weaveHome, "weave.db") : env.dbPath);
-  mkdirSync(weaveHome, { recursive: true });
+    options.dbPath ?? (options.harborHome ? join(harborHome, "harbor.db") : env.dbPath);
+  mkdirSync(harborHome, { recursive: true });
   mkdirSync(dirname(dbPath), { recursive: true });
 
-  const lockPath = acquireLock(weaveHome, port);
-  const syncConfig = resolveSyncConfig(weaveHome, options.syncConfig);
+  const lockPath = acquireLock(harborHome, port);
+  const syncConfig = resolveSyncConfig(harborHome, options.syncConfig);
   const transport: SyncConfig | undefined = syncConfig.enabled
     ? {
         syncUrl: syncConfig.syncUrl,
@@ -61,21 +61,21 @@ export async function startApp(options: StartOptions = {}): Promise<RunningApp> 
       }
     : undefined;
 
-  const db = createDb(dbPath, transport);
+  const db = await createDb(dbPath, transport);
   const applied = await runMigrations(db);
   if (applied.length > 0) {
     console.log(`Applied migrations: ${applied.join(", ")}`);
   }
 
   await initializeServer(db);
-  const sync = new SyncManager(db, syncConfig, weaveHome);
+  const sync = new SyncManager(db, syncConfig, harborHome);
   const handle = await startServer(db, {
     port,
     headless: options.headless ?? false,
     sync,
-    weaveHome,
+    harborHome,
   });
-  console.log(`Weave server listening on http://localhost:${handle.server.port}`);
+  console.log(`Harbor server listening on http://localhost:${handle.server.port}`);
 
   let stopped = false;
   const stop = async (): Promise<void> => {

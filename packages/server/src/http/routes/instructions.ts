@@ -8,7 +8,7 @@ import {
   InstructionConflictSchema,
   InstructionListSchema,
   ScopeSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { z } from "zod";
 import { listResourcesByKind } from "../../services/resources";
 import { detectConflicts } from "../../services/instruction-conflicts";

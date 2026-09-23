@@ -1,6 +1,6 @@
 import { existsSync, statSync } from "node:fs";
 import { isAbsolute, basename } from "node:path";
-import type { AddProjectRequest, Project } from "@weave/shared";
+import type { AddProjectRequest, Project } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { scanProject } from "../scanner/scan";
 

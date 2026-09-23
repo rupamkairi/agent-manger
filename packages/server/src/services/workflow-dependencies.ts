@@ -3,7 +3,7 @@ import type {
   DependencyCheckItem,
   DependencyCheckResult,
   WorkflowDefinition,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { basename, join } from "node:path";
 import { getAdapter } from "../adapters/registry";
 import { resolveGlobalPath, resolveProjectPath } from "../adapters/types";

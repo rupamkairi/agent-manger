@@ -3,12 +3,12 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const LABEL = "org.weave.server";
+const LABEL = "org.harbor.server";
 
 export interface LaunchdContext {
   bunPath: string;
   cliEntry: string;
-  weaveHome: string;
+  harborHome: string;
 }
 
 function escapeXml(value: string): string {
@@ -18,9 +18,9 @@ function escapeXml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
-export function renderPlist({ bunPath, cliEntry, weaveHome }: LaunchdContext): string {
-  const outLog = join(weaveHome, "logs", "server.out.log");
-  const errLog = join(weaveHome, "logs", "server.err.log");
+export function renderPlist({ bunPath, cliEntry, harborHome }: LaunchdContext): string {
+  const outLog = join(harborHome, "logs", "server.out.log");
+  const errLog = join(harborHome, "logs", "server.err.log");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -43,8 +43,8 @@ export function renderPlist({ bunPath, cliEntry, weaveHome }: LaunchdContext): s
   </dict>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>WEAVE_HOME</key>
-    <string>${escapeXml(weaveHome)}</string>
+    <key>HARBOR_HOME</key>
+    <string>${escapeXml(harborHome)}</string>
   </dict>
   <key>StandardOutPath</key>
   <string>${escapeXml(outLog)}</string>
@@ -62,8 +62,8 @@ function plistPath(): string {
 function context(): LaunchdContext {
   const bunPath = process.execPath;
   const cliEntry = fileURLToPath(new URL("../index.ts", import.meta.url));
-  const weaveHome = process.env.WEAVE_HOME ?? join(homedir(), ".weave");
-  return { bunPath, cliEntry, weaveHome };
+  const harborHome = process.env.HARBOR_HOME ?? join(homedir(), ".harbor");
+  return { bunPath, cliEntry, harborHome };
 }
 
 async function run(cmd: string[]): Promise<number> {
@@ -72,10 +72,10 @@ async function run(cmd: string[]): Promise<number> {
 }
 
 export async function installLaunchd(): Promise<void> {
-  const { bunPath, cliEntry, weaveHome } = context();
-  mkdirSync(join(weaveHome, "logs"), { recursive: true });
+  const { bunPath, cliEntry, harborHome } = context();
+  mkdirSync(join(harborHome, "logs"), { recursive: true });
 
-  const plist = renderPlist({ bunPath, cliEntry, weaveHome });
+  const plist = renderPlist({ bunPath, cliEntry, harborHome });
   const path = plistPath();
   mkdirSync(join(homedir(), "Library", "LaunchAgents"), { recursive: true });
   writeFileSync(path, plist);

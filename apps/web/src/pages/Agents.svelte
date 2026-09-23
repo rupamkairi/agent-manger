@@ -11,7 +11,7 @@
 	import { getSelectedProjectId, scopeQueryParams } from "$lib/state/app-state.svelte";
 	import { navigate } from "$lib/router.svelte";
 	import { toast } from "svelte-sonner";
-	import type { AgentInfo } from "@weave/shared";
+	import type { AgentInfo } from "@harbor/shared";
 
 	const agentsQuery = createQuery(() => listAgents(scopeQueryParams()));
 

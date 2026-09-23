@@ -1,4 +1,4 @@
-import type { ConflictTopic, InstructionConflict, Scope } from "@weave/shared";
+import type { ConflictTopic, InstructionConflict, Scope } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { getResourceContent, listResourcesByKind } from "./resources";
 

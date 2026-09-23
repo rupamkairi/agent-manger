@@ -2,20 +2,22 @@
 import { runServe } from "./commands/serve";
 import { runService } from "./commands/service";
 
-const HELP = `Weave CLI
+const HELP = `Harbor CLI
 
-Usage: weave <command> [options]
+Usage: harbor <command> [options]
 
 Commands:
-  serve             Start the Weave server
-    --port <n>        Port to listen on (default: 3000)
+  serve             Start the Harbor API server (API only, port 11123)
+    --port <n>        Port to listen on (default: 11123)
     --db <path>       Path to the database file
-    --headless        Run without opening the web UI
-  service <action>  Manage the Weave OS service
+    --serve-ui        Also serve the built web UI from the same process
+                      (default: off — run the web UI separately)
+    --open             Open the UI in the default browser (pairs with --serve-ui)
+  service <action>  Manage the Harbor OS service
     install             Install and start the service
     uninstall           Stop and remove the service
     status              Show service, process, and API status
-  mcp               Start the Weave MCP server
+  mcp               Start the Harbor MCP server
   --version, -v     Print the CLI version
 `;
 
@@ -30,7 +32,7 @@ async function main(): Promise<void> {
       await runService(rest);
       return;
     case "mcp": {
-      const { runMcpServer } = await import("@weave/mcp");
+      const { runMcpServer } = await import("@harbor/mcp");
       await runMcpServer();
       return;
     }

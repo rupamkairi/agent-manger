@@ -7,7 +7,7 @@ import {
   ProjectSettingsPatchSchema,
   ProjectSettingsSchema,
   RemovedResultSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { scanGlobal } from "../../scanner/scan";
 import {
   addProject,

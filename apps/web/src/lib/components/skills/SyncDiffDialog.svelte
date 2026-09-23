@@ -16,7 +16,7 @@
 	import { getSkillSyncDiff, syncSkill } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
 	import { getSelectedProjectId } from "$lib/state/app-state.svelte";
-	import type { SkillResource, SyncDiff } from "@weave/shared";
+	import type { SkillResource, SyncDiff } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),

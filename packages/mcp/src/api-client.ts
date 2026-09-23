@@ -10,22 +10,22 @@ import type {
   WorkflowSummary,
 } from "./types";
 
-export class WeaveApiError extends Error {
+export class HarborApiError extends Error {
   readonly code: string;
   readonly details?: unknown;
 
   constructor(code: string, message: string, details?: unknown) {
     super(message);
-    this.name = "WeaveApiError";
+    this.name = "HarborApiError";
     this.code = code;
     this.details = details;
   }
 }
 
-export class WeaveUnreachableError extends Error {
+export class HarborUnreachableError extends Error {
   constructor(url: string) {
-    super(`Weave server is not running at ${url} — start it with \`weave serve\``);
-    this.name = "WeaveUnreachableError";
+    super(`Harbor server is not running at ${url} — start it with \`harbor serve\``);
+    this.name = "HarborUnreachableError";
   }
 }
 
@@ -58,11 +58,11 @@ export interface HealthFilters {
   severity?: string;
 }
 
-export class WeaveClient {
+export class HarborClient {
   readonly baseUrl: string;
 
   constructor(options?: { url?: string }) {
-    this.baseUrl = (options?.url ?? process.env.WEAVE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+    this.baseUrl = (options?.url ?? process.env.HARBOR_URL ?? "http://localhost:11123").replace(/\/$/, "");
   }
 
   private async fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
@@ -71,18 +71,18 @@ export class WeaveClient {
     try {
       response = await fetch(url, init);
     } catch {
-      throw new WeaveUnreachableError(this.baseUrl);
+      throw new HarborUnreachableError(this.baseUrl);
     }
 
     let envelope: ApiEnvelope<T>;
     try {
       envelope = (await response.json()) as ApiEnvelope<T>;
     } catch {
-      throw new WeaveApiError("internal", `Failed to parse response from ${url}`);
+      throw new HarborApiError("internal", `Failed to parse response from ${url}`);
     }
 
     if (!envelope.ok) {
-      throw new WeaveApiError(envelope.error.code, envelope.error.message, envelope.error.details);
+      throw new HarborApiError(envelope.error.code, envelope.error.message, envelope.error.details);
     }
     return envelope.data;
   }
@@ -151,7 +151,7 @@ export interface ToolTextResult {
 }
 
 /**
- * Wraps a tool handler so WeaveApiError and WeaveUnreachableError become
+ * Wraps a tool handler so HarborApiError and HarborUnreachableError become
  * a plain-text error result instead of throwing across the MCP transport.
  */
 export function wrapTool<Args extends unknown[]>(
@@ -162,7 +162,7 @@ export function wrapTool<Args extends unknown[]>(
       const data = await handler(...args);
       return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
     } catch (error) {
-      if (error instanceof WeaveApiError || error instanceof WeaveUnreachableError) {
+      if (error instanceof HarborApiError || error instanceof HarborUnreachableError) {
         return { content: [{ type: "text", text: error.message }], isError: true };
       }
       throw error;

@@ -12,10 +12,10 @@
     "noEmit": true,
     "types": ["bun-types"],
     "paths": {
-      "@weave/shared": ["./packages/shared/src"],
-      "@weave/mcp": ["./packages/mcp/src/server.ts"],
-      "@weave/server/app": ["./packages/server/src/app.ts"],
-      "@weave/server/lockfile": ["./packages/server/src/lib/lockfile.ts"]
+      "@harbor/shared": ["./packages/shared/src"],
+      "@harbor/mcp": ["./packages/mcp/src/server.ts"],
+      "@harbor/server/app": ["./packages/server/src/app.ts"],
+      "@harbor/server/lockfile": ["./packages/server/src/lib/lockfile.ts"]
     }
   }
 }

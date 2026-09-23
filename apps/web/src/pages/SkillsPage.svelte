@@ -18,7 +18,7 @@
 		scopeQueryParams,
 	} from "$lib/state/app-state.svelte";
 	import { listSkills, rescanProject, scanGlobal } from "$lib/api/endpoints";
-	import { SKILL_SOURCE_LABELS, type SkillResource, type SkillStatus } from "@weave/shared";
+	import { SKILL_SOURCE_LABELS, type SkillResource, type SkillStatus } from "@harbor/shared";
 
 	const STATUS_OPTIONS: { value: SkillStatus; label: string }[] = [
 		{ value: "valid", label: "Valid" },

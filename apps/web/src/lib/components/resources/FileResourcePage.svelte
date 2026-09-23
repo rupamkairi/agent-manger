@@ -34,7 +34,7 @@
 	import { getResourceContent } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
 	import type { EditorLanguage } from "$lib/editor/languages";
-	import type { Scope, SkillSourceId, ResourceContent, FilePutResponse } from "@weave/shared";
+	import type { Scope, SkillSourceId, ResourceContent, FilePutResponse } from "@harbor/shared";
 	import PlusIcon from "@lucide/svelte/icons/plus";
 
 	let {

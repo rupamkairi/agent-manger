@@ -1,4 +1,4 @@
-const STORAGE_KEY = "weave.selectedProjectId";
+const STORAGE_KEY = "harbor.selectedProjectId";
 
 function readStored(): string | null {
 	if (typeof localStorage === "undefined") return null;

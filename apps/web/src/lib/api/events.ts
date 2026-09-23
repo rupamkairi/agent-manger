@@ -69,7 +69,7 @@ export async function downloadJobLogs(jobId: string): Promise<void> {
 	const url = URL.createObjectURL(new Blob([text], { type: "text/plain;charset=utf-8" }));
 	const anchor = document.createElement("a");
 	anchor.href = url;
-	anchor.download = `weave-job-${jobId}.log`;
+	anchor.download = `harbor-job-${jobId}.log`;
 	anchor.click();
 	URL.revokeObjectURL(url);
 }

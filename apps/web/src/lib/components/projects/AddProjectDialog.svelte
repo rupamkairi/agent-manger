@@ -63,7 +63,7 @@
 		<form onsubmit={handleSubmit}>
 			<DialogHeader>
 				<DialogTitle>Add project</DialogTitle>
-				<DialogDescription>Track a project so Weave can scan its resources.</DialogDescription>
+				<DialogDescription>Track a project so Harbor can scan its resources.</DialogDescription>
 			</DialogHeader>
 			<div class="flex flex-col gap-4 py-4">
 				<div class="flex flex-col gap-2">

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { realpath } from "node:fs/promises";
-import type { InstallTarget, MultiTargetResponse, TargetResult } from "@weave/shared";
+import type { InstallTarget, MultiTargetResponse, TargetResult } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { copyDirReplace, removeDir } from "../lib/fs-safe";
 import { hashDir } from "../lib/hash";

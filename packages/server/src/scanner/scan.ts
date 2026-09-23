@@ -1,5 +1,5 @@
 import { homedir } from "node:os";
-import type { Project, Scope, Skill, SkillIssueCode, SkillSourceId } from "@weave/shared";
+import type { Project, Scope, Skill, SkillIssueCode, SkillSourceId } from "@harbor/shared";
 import { listAdapters, listSkillSources } from "../adapters/registry";
 import {
   resolveGlobalPath,

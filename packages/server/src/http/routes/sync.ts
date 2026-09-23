@@ -4,7 +4,7 @@ import {
   SyncConfigPublicSchema,
   SyncConfigSchema,
   type SyncConfigPublic,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { Db } from "../../db/client";
 import type { Router } from "../../router";
 import { loadSyncFile, saveSyncFile, type LoadedSyncConfig } from "../../sync/config";
@@ -15,7 +15,7 @@ import { validateBody } from "../validate";
 export interface SyncRouteDeps {
   db: Db;
   sync: SyncManager | null;
-  weaveHome: string;
+  harborHome: string;
 }
 
 const DEFAULT_SYNC_INTERVAL_MS = 60_000;
@@ -34,18 +34,18 @@ function toPublicConfig(config: LoadedSyncConfig): SyncConfigPublic {
 
 export function registerSyncRoutes(router: Router, deps: SyncRouteDeps): void {
   router.get("/api/v1/sync/config", async () =>
-    ok(toPublicConfig(loadSyncFile(deps.weaveHome)), SyncConfigPublicSchema),
+    ok(toPublicConfig(loadSyncFile(deps.harborHome)), SyncConfigPublicSchema),
   );
 
   router.put("/api/v1/sync/config", async ({ request }) => {
     const body = await validateBody(request, SyncConfigSchema);
-    saveSyncFile(deps.weaveHome, body);
+    saveSyncFile(deps.harborHome, body);
     return ok({ config: toPublicConfig(body), restartRequired: true }, SyncConfigPutResultSchema);
   });
 
   router.get("/api/v1/sync/status", async () => {
     if (deps.sync) return ok(deps.sync.getStatus(), DbSyncStatusSchema);
-    const fileConfig = loadSyncFile(deps.weaveHome);
+    const fileConfig = loadSyncFile(deps.harborHome);
     return ok(
       {
         enabled: false,

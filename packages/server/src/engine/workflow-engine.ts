@@ -1,4 +1,4 @@
-import type { DependencyCheckResult, Job } from "@weave/shared";
+import type { DependencyCheckResult, Job } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { recoverInterruptedJobs } from "../services/jobs";
 import { checkWorkflowDependencies } from "../services/workflow-dependencies";

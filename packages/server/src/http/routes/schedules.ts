@@ -4,7 +4,7 @@ import {
   ScheduleListSchema,
   ScheduleSchema,
   ScheduleWriteSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { Db } from "../../db/client";
 import type { Router } from "../../router";
 import {

@@ -1,4 +1,4 @@
-import type { AgentId } from "@weave/shared";
+import type { AgentId } from "@harbor/shared";
 import type { JobLogStore } from "./log-store";
 
 const KILL_GRACE_MS = 5_000;

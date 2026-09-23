@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
-	import type { HealthSeverity } from "@weave/shared";
+	import type { HealthSeverity } from "@harbor/shared";
 
 	let { severity }: { severity: HealthSeverity } = $props();
 

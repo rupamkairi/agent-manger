@@ -26,7 +26,7 @@
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import EllipsisIcon from "@lucide/svelte/icons/ellipsis";
 	import LoaderCircleIcon from "@lucide/svelte/icons/loader-circle";
-	import type { Project } from "@weave/shared";
+	import type { Project } from "@harbor/shared";
 
 	const projectsQuery = createQuery(() => listProjects());
 
@@ -78,7 +78,7 @@
 
 <TooltipProvider>
 	<div class="page-stack">
-		<PageHeader title="Projects" description="Projects Weave is tracking on this machine.">
+		<PageHeader title="Projects" description="Projects Harbor is tracking on this machine.">
 			{#snippet actions()}
 				<Button size="sm" onclick={() => (addDialogOpen = true)}>
 					<PlusIcon class="size-4" />

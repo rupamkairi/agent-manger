@@ -1,15 +1,15 @@
 {
-  "name": "@weave/cli",
+  "name": "@harbor/cli",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "weave": "./src/index.ts"
+    "harbor": "./src/index.ts"
   },
   "dependencies": {
-    "@weave/mcp": "workspace:*",
-    "@weave/server": "workspace:*",
-    "@weave/shared": "workspace:*"
+    "@harbor/mcp": "workspace:*",
+    "@harbor/server": "workspace:*",
+    "@harbor/shared": "workspace:*"
   },
   "devDependencies": {
     "bun-types": "latest"

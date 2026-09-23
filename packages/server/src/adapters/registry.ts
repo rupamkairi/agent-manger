@@ -1,4 +1,4 @@
-import type { AgentId, SkillSourceId } from "@weave/shared";
+import type { AgentId, SkillSourceId } from "@harbor/shared";
 import { agentsStandardSource } from "./agents-standard";
 import { claudeCodeAdapter } from "./claude-code";
 import { codexAdapter } from "./codex";

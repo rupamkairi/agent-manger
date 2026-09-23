@@ -1,4 +1,4 @@
-import { ApiErrorEnvelopeSchema, apiOk, type ApiErrorCode } from "@weave/shared";
+import { ApiErrorEnvelopeSchema, apiOk, type ApiErrorCode } from "@harbor/shared";
 import type { z } from "zod";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };

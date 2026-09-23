@@ -37,7 +37,7 @@ const STAGING_CLEANUP_INTERVAL_MS = 60 * 60 * 1000;
 export interface RouterExtras {
   scheduler?: { rearm(): Promise<void> | void };
   sync?: SyncManager | null;
-  weaveHome?: string;
+  harborHome?: string;
   terminal?: TerminalSessionManager;
 }
 
@@ -55,11 +55,11 @@ export function buildRouter(deps: RouteDeps, extras: RouterExtras = {}): Router 
   registerWorkflowRoutes(router, deps);
   registerJobRoutes(router, deps);
   registerScheduleRoutes(router, { ...deps, scheduler: extras.scheduler });
-  if (extras.weaveHome) {
+  if (extras.harborHome) {
     registerSyncRoutes(router, {
       ...deps,
       sync: extras.sync ?? null,
-      weaveHome: extras.weaveHome,
+      harborHome: extras.harborHome,
     });
   }
   if (extras.terminal) {
@@ -87,7 +87,7 @@ export interface ServerOptions {
   port: number;
   headless: boolean;
   sync?: SyncManager | null;
-  weaveHome?: string;
+  harborHome?: string;
 }
 
 export interface ServerHandle {
@@ -118,7 +118,7 @@ export async function startServer(db: Db, options: ServerOptions): Promise<Serve
     {
       scheduler,
       sync: options.sync ?? null,
-      weaveHome: options.weaveHome ?? loadEnv().weaveHome,
+      harborHome: options.harborHome ?? loadEnv().harborHome,
       terminal,
     },
   );
@@ -159,7 +159,7 @@ export async function startServer(db: Db, options: ServerOptions): Promise<Serve
       }
 
       if (options.headless) {
-        return new Response("Weave running in headless mode. API at /api/v1.", {
+        return new Response("Harbor running in headless mode. API at /api/v1.", {
           status: 404,
           headers: { "Content-Type": "text/plain" },
         });

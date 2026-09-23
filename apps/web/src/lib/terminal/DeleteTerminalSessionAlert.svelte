@@ -12,7 +12,7 @@
 	import { toast } from "svelte-sonner";
 	import { deleteTerminalSession } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
-	import type { TerminalSession } from "@weave/shared";
+	import type { TerminalSession } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),

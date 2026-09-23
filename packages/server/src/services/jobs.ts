@@ -1,4 +1,4 @@
-import type { Job, JobDetail } from "@weave/shared";
+import type { Job, JobDetail } from "@harbor/shared";
 import type { InValue } from "@libsql/client";
 import type { Db } from "../db/client";
 import { getHostname } from "../sync/manager";

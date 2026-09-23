@@ -1,6 +1,6 @@
 import { realpath } from "node:fs/promises";
 import { dirname, join, relative, resolve, sep } from "node:path";
-import type { AgentId, ResourceKind, Scope, SkillSourceId } from "@weave/shared";
+import type { AgentId, ResourceKind, Scope, SkillSourceId } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { getAdapter, getSkillSource } from "../adapters/registry";
 import { resolveGlobalPath, resolveProjectPath } from "../adapters/types";

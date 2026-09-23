@@ -4,7 +4,7 @@ import type {
   AgentInfo,
   AgentResourceCounts,
   Scope,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { detectAgent, detectAll, persistDetection } from "../adapters/detect";
 import { getAdapter, listAdapters } from "../adapters/registry";
 import type { AgentAdapter } from "../adapters/types";

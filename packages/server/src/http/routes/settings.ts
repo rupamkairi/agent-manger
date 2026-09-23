@@ -1,4 +1,4 @@
-import { SettingsPatchSchema, SettingsSchema } from "@weave/shared";
+import { SettingsPatchSchema, SettingsSchema } from "@harbor/shared";
 import { getSettings, patchSettings } from "../../services/settings";
 import { ok } from "../respond";
 import { validateBody } from "../validate";

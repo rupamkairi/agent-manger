@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "paths": {
-      "@weave/shared": ["../shared/src"]
+      "@harbor/shared": ["../shared/src"]
     }
   },
   "include": ["src/**/*.ts"]

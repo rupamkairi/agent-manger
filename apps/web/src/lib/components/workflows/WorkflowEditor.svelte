@@ -8,7 +8,7 @@
 	import { Textarea } from "$lib/components/ui/textarea";
 	import { Alert, AlertDescription, AlertTitle } from "$lib/components/ui/alert";
 	import WorkflowDagPreview from "./WorkflowDagPreview.svelte";
-	import { AGENT_IDS, WorkflowDefinitionSchema, type AgentId, type WorkflowDefinition, type WorkflowInput, type WorkflowStep } from "@weave/shared";
+	import { AGENT_IDS, WorkflowDefinitionSchema, type AgentId, type WorkflowDefinition, type WorkflowInput, type WorkflowStep } from "@harbor/shared";
 	import PlusIcon from "@lucide/svelte/icons/plus";
 	import Trash2Icon from "@lucide/svelte/icons/trash-2";
 	import SaveIcon from "@lucide/svelte/icons/save";

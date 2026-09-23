@@ -9,7 +9,7 @@
 	import { listJobs } from "$lib/api/endpoints";
 	import { navigate } from "$lib/router.svelte";
 	import { formatDateTime, formatDuration, isActiveState } from "$lib/workflows/format";
-	import type { JobState } from "@weave/shared";
+	import type { JobState } from "@harbor/shared";
 
 	const REFRESH_INTERVAL_MS = 5000;
 

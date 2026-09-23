@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { DependencyCheckResult, ScheduleWrite } from "@weave/shared";
+import type { DependencyCheckResult, ScheduleWrite } from "@harbor/shared";
 import { createDb, type Db } from "./db/client";
 import { runMigrations } from "./db/migrate";
 import { JobRetentionService, runRetentionSweep } from "./scheduler/retention";
@@ -21,9 +21,9 @@ import {
 const roots: string[] = [];
 
 async function testDb(): Promise<{ db: Db; root: string }> {
-  const root = await mkdtemp(join(tmpdir(), "weave-schedule-test-"));
+  const root = await mkdtemp(join(tmpdir(), "harbor-schedule-test-"));
   roots.push(root);
-  const db = createDb(join(root, "weave.db"));
+  const db = await createDb(join(root, "harbor.db"));
   await runMigrations(db);
   await db.run(
     "INSERT INTO workflows (id, name, version, json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",

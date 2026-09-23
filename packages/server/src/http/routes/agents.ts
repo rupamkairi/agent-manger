@@ -5,7 +5,7 @@ import {
   AgentInfoListSchema,
   AgentInfoSchema,
   ScopeSchema,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { z } from "zod";
 import { getAgentInfo, getAgentInfos, refreshDetection } from "../../services/agents";
 import { err, ok } from "../respond";

@@ -54,7 +54,7 @@ import {
 	type WorkflowDefinition,
 	type WorkflowRunRequest,
 	type ScheduleWrite,
-} from "@weave/shared";
+} from "@harbor/shared";
 import { fetchJson, toQueryString } from "./client";
 
 const ProjectListSchema = z.array(ProjectSchema);

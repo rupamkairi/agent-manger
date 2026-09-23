@@ -1,13 +1,14 @@
 {
-  "name": "weave",
+  "name": "harbor",
   "private": true,
   "workspaces": ["packages/*", "apps/*"],
   "scripts": {
     "dev": "bun run dev:server & bun run dev:web",
     "dev:server": "bun --watch packages/server/src/index.ts",
     "dev:web": "bun run --cwd apps/web dev",
-    "weave": "bun packages/cli/src/index.ts",
+    "harbor": "bun packages/cli/src/index.ts",
     "build": "bun run --filter '*' build",
+    "package": "bun run --cwd apps/web build && bun build --compile packages/cli/src/index.ts --outfile dist/harbor && rm -rf dist/web-dist && cp -r apps/web/dist dist/web-dist",
     "typecheck": "bun x tsc --noEmit -p packages/shared/tsconfig.json && bun x tsc --noEmit -p packages/server/tsconfig.json && bun x tsc --noEmit -p packages/cli/tsconfig.json && bun x tsc --noEmit -p packages/mcp/tsconfig.json && bun run --cwd apps/web check"
   },
   "devDependencies": {

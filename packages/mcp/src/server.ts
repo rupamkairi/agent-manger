@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-import { WeaveClient, wrapTool } from "./api-client";
+import { HarborClient, wrapTool } from "./api-client";
 import type { SkillResource, WorkflowListSummary, SkillSummary } from "./types";
 
 function toSkillSummary(resource: SkillResource): SkillSummary {
@@ -31,8 +31,8 @@ const resourceHealthInputSchema = {
 };
 
 export async function runMcpServer(options?: { url?: string }): Promise<void> {
-  const client = new WeaveClient(options);
-  const server = new McpServer({ name: "weave", version: "0.1.0" });
+  const client = new HarborClient(options);
+  const server = new McpServer({ name: "harbor", version: "0.1.0" });
 
   // The MCP SDK's own nested zod dependency is hoisted independently by Bun and lands on
   // a different major version than the zod v3 we declare in package.json (this monorepo
@@ -46,7 +46,7 @@ export async function runMcpServer(options?: { url?: string }): Promise<void> {
 
   registerTool(
     "list_projects",
-    { description: "List all projects registered with Weave." },
+    { description: "List all projects registered with Harbor." },
     wrapTool(async () => client.listProjects()),
   );
 

@@ -17,7 +17,7 @@
 	import { loadSkillImport, installSkillImport } from "$lib/api/endpoints";
 	import { ApiError } from "$lib/api/client";
 	import { getSelectedProjectId, invalidateResources } from "$lib/state/app-state.svelte";
-	import { AGENT_IDS, type AgentId, type InstallTarget, type Scope, type SkillLoadResult, type SkillSource, type TargetResult } from "@weave/shared";
+	import { AGENT_IDS, type AgentId, type InstallTarget, type Scope, type SkillLoadResult, type SkillSource, type TargetResult } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),

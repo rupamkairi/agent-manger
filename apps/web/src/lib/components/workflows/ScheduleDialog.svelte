@@ -7,7 +7,7 @@
 	import { Label } from "$lib/components/ui/label";
 	import * as Select from "$lib/components/ui/select";
 	import { getWorkflow } from "$lib/api/endpoints";
-	import { ScheduleWriteSchema, type Schedule, type ScheduleWrite, type WorkflowDefinition, type WorkflowSummary } from "@weave/shared";
+	import { ScheduleWriteSchema, type Schedule, type ScheduleWrite, type WorkflowDefinition, type WorkflowSummary } from "@harbor/shared";
 
 	let { open = $bindable(false), schedule = null, workflows, saving = false, onSave }: { open?: boolean; schedule?: Schedule | null; workflows: WorkflowSummary[]; saving?: boolean; onSave: (value: ScheduleWrite) => void | Promise<void> } = $props();
 	let workflowId = $state("");

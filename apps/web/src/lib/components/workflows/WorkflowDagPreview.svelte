@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Badge } from "$lib/components/ui/badge";
 	import ArrowRightIcon from "@lucide/svelte/icons/arrow-right";
-	import type { WorkflowStep } from "@weave/shared";
+	import type { WorkflowStep } from "@harbor/shared";
 
 	let { steps }: { steps: WorkflowStep[] } = $props();
 

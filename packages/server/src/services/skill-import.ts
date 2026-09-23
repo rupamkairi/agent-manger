@@ -9,7 +9,7 @@ import type {
   MultiTargetResponse,
   SkillLoadResult,
   SkillSource,
-} from "@weave/shared";
+} from "@harbor/shared";
 import type { Db } from "../db/client";
 import { loadEnv } from "../env";
 import { copyDirReplace } from "../lib/fs-safe";
@@ -41,7 +41,7 @@ interface StagingMeta {
 }
 
 export function defaultStagingRoot(): string {
-  return join(loadEnv().weaveHome, "staging");
+  return join(loadEnv().harborHome, "staging");
 }
 
 async function existsAsync(path: string): Promise<boolean> {

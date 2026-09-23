@@ -16,7 +16,7 @@
 	import { createQuery } from "$lib/state/query.svelte";
 	import { getHealth } from "$lib/api/endpoints";
 	import { scopeQueryParams } from "$lib/state/app-state.svelte";
-	import type { HealthIssue, HealthSeverity } from "@weave/shared";
+	import type { HealthIssue, HealthSeverity } from "@harbor/shared";
 
 	const healthQuery = createQuery(() => getHealth(scopeQueryParams()));
 

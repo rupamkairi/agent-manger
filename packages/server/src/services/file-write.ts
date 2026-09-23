@@ -1,5 +1,5 @@
 import { readFile, stat, unlink } from "node:fs/promises";
-import type { AgentId, FilePutResponse, ResourceKind, Scope } from "@weave/shared";
+import type { AgentId, FilePutResponse, ResourceKind, Scope } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { sha256Hex } from "../lib/hash";
 import { writeFileAtomic } from "../lib/fs-safe";

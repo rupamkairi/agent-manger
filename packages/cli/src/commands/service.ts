@@ -1,6 +1,6 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { readLock } from "@weave/server/lockfile";
+import { readLock } from "@harbor/server/lockfile";
 import { parseServiceArgs } from "../args";
 import { detectServicePlatform } from "../service/detect";
 import { installLaunchd, launchdStatus, uninstallLaunchd } from "../service/launchd";
@@ -17,14 +17,14 @@ function isProcessAlive(pid: number): boolean {
 }
 
 async function printStatus(): Promise<void> {
-  const weaveHome = process.env.WEAVE_HOME ?? join(homedir(), ".weave");
+  const harborHome = process.env.HARBOR_HOME ?? join(homedir(), ".harbor");
   const platform = detectServicePlatform();
 
   const { registered } =
     platform === "launchd" ? await launchdStatus() : await systemdStatus();
   console.log(`Unit: ${registered ? "registered" : "not registered"} (${platform})`);
 
-  const lock = readLock(weaveHome);
+  const lock = readLock(harborHome);
   const alive = lock ? isProcessAlive(lock.pid) : false;
   console.log(
     alive && lock
@@ -32,7 +32,7 @@ async function printStatus(): Promise<void> {
       : "Process: not running",
   );
 
-  const port = lock?.port ?? 3000;
+  const port = lock?.port ?? 11123;
   try {
     const response = await fetch(`http://localhost:${port}/api/v1/health`, {
       signal: AbortSignal.timeout(1000),
@@ -61,10 +61,10 @@ export async function runService(argv: string[]): Promise<void> {
 
   if (action === "install") {
     await (platform === "launchd" ? installLaunchd() : installSystemd());
-    console.log(`Weave service installed (${platform}).`);
+    console.log(`Harbor service installed (${platform}).`);
     return;
   }
 
   await (platform === "launchd" ? uninstallLaunchd() : uninstallSystemd());
-  console.log(`Weave service uninstalled (${platform}).`);
+  console.log(`Harbor service uninstalled (${platform}).`);
 }

@@ -10,7 +10,7 @@
 	import SyncDiffDialog from "./SyncDiffDialog.svelte";
 	import InstallSkillDialog from "./InstallSkillDialog.svelte";
 	import { getSelectedProjectId } from "$lib/state/app-state.svelte";
-	import type { SkillResource } from "@weave/shared";
+	import type { SkillResource } from "@harbor/shared";
 
 	let {
 		open = $bindable(false),

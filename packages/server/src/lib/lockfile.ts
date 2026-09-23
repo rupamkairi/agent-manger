@@ -12,15 +12,15 @@ export class LockHeldError extends Error {
 
   constructor(holder: LockInfo) {
     super(
-      `Another Weave instance is running (pid ${holder.pid}, port ${holder.port}, started ${holder.startedAt})`,
+      `Another Harbor instance is running (pid ${holder.pid}, port ${holder.port}, started ${holder.startedAt})`,
     );
     this.name = "LockHeldError";
     this.holder = holder;
   }
 }
 
-function lockPathFor(weaveHome: string): string {
-  return join(weaveHome, "weave.lock");
+function lockPathFor(harborHome: string): string {
+  return join(harborHome, "harbor.lock");
 }
 
 function parseLock(path: string): LockInfo | null {
@@ -62,12 +62,12 @@ function throwIfHeld(path: string): void {
 }
 
 /**
- * Acquires the single-instance lock at `<weaveHome>/weave.lock`.
+ * Acquires the single-instance lock at `<harborHome>/harbor.lock`.
  * Throws LockHeldError if a live process already holds it; stale locks
  * from dead processes are replaced. Returns the lock file path.
  */
-export function acquireLock(weaveHome: string, port: number): string {
-  const path = lockPathFor(weaveHome);
+export function acquireLock(harborHome: string, port: number): string {
+  const path = lockPathFor(harborHome);
   throwIfHeld(path);
 
   const info: LockInfo = {
@@ -97,8 +97,8 @@ export function acquireLock(weaveHome: string, port: number): string {
   return path;
 }
 
-export function readLock(weaveHome: string): LockInfo | null {
-  return parseLock(lockPathFor(weaveHome));
+export function readLock(harborHome: string): LockInfo | null {
+  return parseLock(lockPathFor(harborHome));
 }
 
 /**

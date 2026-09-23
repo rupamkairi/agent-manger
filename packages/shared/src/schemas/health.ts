@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AgentIdSchema } from "./agent";
+import { SkillSourceIdSchema } from "./agent";
 
 export const HealthSeveritySchema = z.enum(["info", "warning", "error", "unknown"]);
 export type HealthSeverity = z.infer<typeof HealthSeveritySchema>;
@@ -8,7 +8,7 @@ export const HealthIssueSchema = z.object({
   id: z.string(),
   severity: HealthSeveritySchema,
   source: z.enum(["agent-detection", "skill-validation", "resource-scan", "project"]),
-  agentId: AgentIdSchema.nullable(),
+  agentId: SkillSourceIdSchema.nullable(),
   projectId: z.string().nullable(),
   resourceId: z.string().nullable(),
   message: z.string(),

@@ -15,9 +15,9 @@ import { getProjectSettings, putProjectSettings } from "./services/project-setti
 const tempDirectories: string[] = [];
 
 async function createTestDb(): Promise<{ db: Db; root: string }> {
-  const root = await mkdtemp(join(tmpdir(), "weave-file-write-test-"));
+  const root = await mkdtemp(join(tmpdir(), "harbor-file-write-test-"));
   tempDirectories.push(root);
-  const db = createDb(join(root, "weave.db"));
+  const db = await createDb(join(root, "harbor.db"));
   await runMigrations(db);
   return { db, root };
 }

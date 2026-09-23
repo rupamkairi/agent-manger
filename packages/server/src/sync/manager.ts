@@ -1,5 +1,5 @@
 import { hostname } from "node:os";
-import type { DbSyncStatus } from "@weave/shared";
+import type { DbSyncStatus } from "@harbor/shared";
 import type { Db } from "../db/client";
 import { loadSyncFile, type LoadedSyncConfig } from "./config";
 
@@ -24,11 +24,14 @@ export class SyncManager {
   constructor(
     private readonly db: Db,
     private readonly activeConfig: LoadedSyncConfig,
-    private readonly weaveHome: string,
+    private readonly harborHome: string,
   ) {}
 
   async syncNow(): Promise<DbSyncStatus> {
     try {
+      if (!this.db.client.sync) {
+        throw new Error("Sync is not supported by this database backend (local mode)");
+      }
       const replicated = await this.db.client.sync();
       this.lastSyncAt = new Date().toISOString();
       if (replicated) {
@@ -50,7 +53,7 @@ export class SyncManager {
       ...(this.frameNo !== undefined ? { frameNo: this.frameNo } : {}),
       ...(this.framesSynced !== undefined ? { framesSynced: this.framesSynced } : {}),
       error: this.error,
-      restartRequired: !sameConfig(loadSyncFile(this.weaveHome), this.activeConfig),
+      restartRequired: !sameConfig(loadSyncFile(this.harborHome), this.activeConfig),
     };
   }
 }

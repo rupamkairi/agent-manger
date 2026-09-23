@@ -1,4 +1,4 @@
-import { SettingsSchema, type Settings, type SettingsPatch } from "@weave/shared";
+import { SettingsSchema, type Settings, type SettingsPatch } from "@harbor/shared";
 import type { Db } from "../db/client";
 
 const SETTINGS_KEY = "app";

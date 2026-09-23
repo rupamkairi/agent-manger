@@ -1,5 +1,5 @@
 import { Cron } from "croner";
-import type { Schedule, ScheduleSpec, ScheduleWrite } from "@weave/shared";
+import type { Schedule, ScheduleSpec, ScheduleWrite } from "@harbor/shared";
 import type { InValue } from "@libsql/client";
 import type { Db } from "../db/client";
 import { getHostname } from "../sync/manager";

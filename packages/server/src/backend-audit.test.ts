@@ -14,9 +14,9 @@ import { ValidationError, validateScopeSelection } from "./http/validate";
 const tempDirectories: string[] = [];
 
 async function createTestDb(): Promise<{ db: Db; root: string }> {
-  const root = await mkdtemp(join(tmpdir(), "weave-backend-test-"));
+  const root = await mkdtemp(join(tmpdir(), "harbor-backend-test-"));
   tempDirectories.push(root);
-  const db = createDb(join(root, "weave.db"));
+  const db = await createDb(join(root, "harbor.db"));
   await runMigrations(db);
   return { db, root };
 }
@@ -85,7 +85,7 @@ describe("backend audit completion", () => {
     expect(truncated?.truncated).toBe(true);
     expect(new TextEncoder().encode(truncated?.content ?? "").byteLength).toBe(256 * 1024);
 
-    const outsidePath = join(root, "..", `weave-outside-${crypto.randomUUID()}.txt`);
+    const outsidePath = join(root, "..", `harbor-outside-${crypto.randomUUID()}.txt`);
     await writeFile(outsidePath, "outside");
     await rm(filePath);
     await symlink(outsidePath, filePath);
